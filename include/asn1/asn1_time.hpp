@@ -36,10 +36,7 @@ public:
     if (ASN1_TIME_print(bio.as_ptr(), this->as_ptr()) != 1) {
       return Unexpected(SSLError(ErrorCode::ParseError));
     }
-    BUF_MEM *bptr = BUF_MEM_new();
-    BIO_get_mem_ptr(bio.as_ptr(), &bptr);
-    BIO_set_close(bio.as_ptr(), BIO_NOCLOSE);
-    return {{bptr->data, bptr->length}};
+    return bio.get_mem_ptr();
   }
 
   auto to_time_point() const -> Expected<std::chrono::system_clock::time_point> {

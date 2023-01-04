@@ -13,6 +13,7 @@
 #include <openssl/x509v3.h>
 #include <openssl/pem.h>
 
+#include "evp_pkey.hpp"
 #include "internal/ssl_interface.hpp"
 #include "asn1/asn1_time.hpp"
 #include "asn1/asn1_integer.hpp"
@@ -90,7 +91,7 @@ public:
     if (X509_print_ex(bio.as_ptr(), this->as_ptr(), XN_FLAG_SEP_CPLUS_SPC, X509_FLAG_COMPAT) == 0) {
             return Unexpected(SSLError(ErrorCode::ParseError));
     }
-    return bio.get_mem_data();
+    return bio.get_mem_ptr();
   }
 
   auto not_before() const -> Expected<Asn1Time> {
@@ -98,29 +99,35 @@ public:
     if (time == nullptr) {
       return Unexpected(SSLError(ErrorCode::AccesError));
     }
-    // take ownership of time to prevent double free
-    auto ans1_time = const_cast<ASN1_TIME *>(ASN1_STRING_dup(time));
-    return {Asn1Time(ans1_time)};
+    X509_up_ref(this->as_ptr());
+    return {Asn1Time(const_cast<ASN1_TIME *>(time))};
   }
 
   auto not_after() const -> Expected<Asn1Time> {
     auto time = X509_get0_notAfter(this->as_ptr());
-    // take ownership of time to prevent double free
     if (time == nullptr) {
       return Unexpected(SSLError(ErrorCode::AccesError));
     }
-    // take ownership of time to prevent double free
-    auto ans1_time = const_cast<ASN1_TIME *>(ASN1_STRING_dup(time));
-    return {Asn1Time(ans1_time)};
+    X509_up_ref(this->as_ptr());
+    return {Asn1Time(const_cast<ASN1_TIME *>(time))};
   }
 
   auto serial_number() const -> Expected<Asn1Integer> {
     ASN1_INTEGER *serial = X509_get_serialNumber(this->as_ptr());
+    if (serial == nullptr) {
+      return Unexpected(SSLError(ErrorCode::AccesError));
+    }
+    X509_up_ref(this->as_ptr());
     return {Asn1Integer(serial)};
   }
 
-  auto get_public_key() -> EVP_PKEY* {
-    return X509_get_pubkey(this->as_ptr());
+  auto get_public_key() -> Expected<EVPPkey> {
+    auto pub_key = X509_get_pubkey(this->as_ptr());
+    if (pub_key == nullptr) {
+      return Unexpected(SSLError(ErrorCode::AccesError));
+    }
+    X509_up_ref(this->as_ptr());
+    return EVPPkey(pub_key);
   }
 };  // class X509Certificate
 

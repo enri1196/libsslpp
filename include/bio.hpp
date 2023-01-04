@@ -7,6 +7,7 @@
 #include <string_view>
 
 #include <openssl/bio.h>
+#include <openssl/ssl.h>
 
 #include "internal/ssl_interface.hpp"
 
@@ -42,14 +43,11 @@ public:
 
   auto as_ptr() const noexcept -> BIO* { return m_ssl_type.get(); }
 
-  auto get_mem_data() -> Expected<std::string_view> {
-    char* buffer{};
-    // BIO_get_mem_data
-    std::int64_t length = BIO_get_mem_data(this->as_ptr(), buffer);
-    if (length < 0) {
-      return Unexpected(ErrorCode::ConversionError);
-    }
-    return {{buffer, static_cast<std::size_t>(length)}};
+  auto get_mem_ptr() -> Expected<std::string_view> {
+    BUF_MEM *bptr = BUF_MEM_new();
+    BIO_get_mem_ptr(this->as_ptr(), &bptr);
+    BIO_set_close(this->as_ptr(), BIO_NOCLOSE);
+    return {{bptr->data, bptr->length}};
   }
 };  // class SSLBio
 

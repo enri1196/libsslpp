@@ -60,10 +60,7 @@ public:
   auto to_string() const -> Expected<std::string_view> {
     auto bio = openssl::SSLBio::init();
     PEM_write_bio_PUBKEY(bio.as_ptr(), this->as_ptr());
-    BUF_MEM *bptr = BUF_MEM_new();
-    BIO_get_mem_ptr(bio.as_ptr(), &bptr);
-    BIO_set_close(bio.as_ptr(), BIO_NOCLOSE);
-    return {{bptr->data, bptr->length}};
+    return bio.get_mem_ptr();
   }
 };
 

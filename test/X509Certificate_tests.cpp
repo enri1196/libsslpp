@@ -138,8 +138,8 @@ TEST(X509Certificate, print_certificate) {
     std::cout << pem_cert.error() << "\n";
     FAIL();
   }
-  // std::cout << pem_cert->to_string().value() << "\n";
   const auto cert_str = pem_cert->to_string();
+  std::cout << pem_cert->to_string().value() << "\n";
   EXPECT_EQ(cert_str.has_value(), true);
 }
 
@@ -167,6 +167,19 @@ TEST(X509Certificate, get_not_after) {
   const auto expected_date = "Feb 20 08:17:10 2023 GMT";
   std::cout << date << "\n";
   EXPECT_EQ(date, expected_date);
+}
+
+TEST(X509Certificate, get_serial) {
+  const auto pem_cert =
+      openssl::X509Certificate::parse(std::string_view(PEM_CERT));
+  if (!pem_cert.has_value()) {
+    std::cout << pem_cert.error() << "\n";
+    FAIL();
+  }
+  const auto serial = pem_cert->serial_number()->to_string().value();
+  const auto expected_serial = "312562198579271308107566801634569296046";
+  std::cout << serial << "\n";
+  EXPECT_EQ(serial, expected_serial);
 }
 
 TEST(X509Certificate, get_pubkey) {
