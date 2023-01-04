@@ -8,6 +8,6 @@ include = files(
     # include files
     'bio.hpp',
     'big_num.hpp',
-    'buffer.hpp',
+    'evp_pkey.hpp',
     'x509_certificate.hpp',
 )

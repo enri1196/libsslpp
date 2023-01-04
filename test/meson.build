@@ -22,5 +22,6 @@ test_dep = declare_dependency(
 )
 
 test_files = files(
-  'X509Certificate_tests.cpp'
+  'evp_pkey_tests.cpp',
+  'X509Certificate_tests.cpp',
 )

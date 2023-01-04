@@ -3,7 +3,11 @@ project(
   version : '0.1',
   default_options : [
     'warning_level=everything',
-    'cpp_std=c++20'
+    'cpp_std=c++20',
+    'buildtype=release',
+    'b_lto=true',
+    'b_lto_mode=default',
+    'b_lto_threads=8',
   ],
 )
 
@@ -18,7 +22,7 @@ subdir('src')
 subdir('test')
 
 # List all dependencies, than add to deps array
-ssl = dependency('openssl', version : '>=1.1.1')
+ssl = dependency('openssl', version : '>=1.1.1', required : true)
 deps = [ ssl ]
 
 install_headers(

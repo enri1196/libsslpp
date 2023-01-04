@@ -16,6 +16,7 @@
 #include "internal/ssl_interface.hpp"
 #include "asn1/asn1_time.hpp"
 #include "asn1/asn1_integer.hpp"
+#include "openssl/asn1.h"
 
 namespace openssl {
 
@@ -54,7 +55,7 @@ public:
     if (cert == nullptr) {
       return Unexpected(SSLError(ErrorCode::ParseError));
     }
-    return Expected<X509Certificate>(X509Certificate(cert));
+    return {X509Certificate(cert)};
   }
 
   static auto parse(const std::string_view&& cert_str) -> Expected<X509Certificate> {
@@ -64,7 +65,7 @@ public:
     if (cert == nullptr) {
       return Unexpected(SSLError(ErrorCode::ParseError));
     }
-    return Expected<X509Certificate>(X509Certificate(cert));
+    return {X509Certificate(cert)};
   }
 
   static auto parse(const std::filesystem::path&& file_path) -> Expected<X509Certificate> {
@@ -73,7 +74,7 @@ public:
     if (cert == nullptr) {
       return Unexpected(SSLError(ErrorCode::ParseError));
     }
-    return Expected<X509Certificate>(X509Certificate(cert));
+    return {X509Certificate(cert)};
   }
 
   static auto parse(const SSLBio&& bio_cert) -> Expected<X509Certificate> {
@@ -81,7 +82,7 @@ public:
     if (cert == nullptr) {
       return Unexpected(SSLError(ErrorCode::ParseError, "Couldn't parse certificate from bio"));
     }
-    return Expected<X509Certificate>(X509Certificate(cert));
+    return {X509Certificate(cert)};
   }
 
   auto to_string() const -> Expected<std::string_view> {
@@ -99,7 +100,7 @@ public:
     }
     // take ownership of time to prevent double free
     auto ans1_time = const_cast<ASN1_TIME *>(ASN1_STRING_dup(time));
-    return Expected<Asn1Time>(Asn1Time(ans1_time));
+    return {Asn1Time(ans1_time)};
   }
 
   auto not_after() const -> Expected<Asn1Time> {
@@ -110,12 +111,12 @@ public:
     }
     // take ownership of time to prevent double free
     auto ans1_time = const_cast<ASN1_TIME *>(ASN1_STRING_dup(time));
-    return Expected<Asn1Time>(Asn1Time(ans1_time));
+    return {Asn1Time(ans1_time)};
   }
 
   auto serial_number() const -> Expected<Asn1Integer> {
     ASN1_INTEGER *serial = X509_get_serialNumber(this->as_ptr());
-    return Expected<Asn1Integer>(Asn1Integer(serial));
+    return {Asn1Integer(serial)};
   }
 
   auto get_public_key() -> EVP_PKEY* {

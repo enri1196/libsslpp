@@ -4,7 +4,6 @@
 #include <memory>
 #include <ostream>
 #include <string_view>
-#include <concepts>
 
 #include <openssl/err.h>
 
@@ -32,7 +31,8 @@ enum class ErrorCode : std::uint8_t {
   AccesError,
   ConversionError,
   IOError,
-  ParseError
+  KeyGen,
+  ParseError,
 };
 
 static const auto code_to_string = [](ErrorCode c) -> std::string_view {
@@ -43,6 +43,8 @@ static const auto code_to_string = [](ErrorCode c) -> std::string_view {
     return "ConversionError";
   case ErrorCode::IOError:
     return "IOError";
+  case ErrorCode::KeyGen:
+    return "KeyGenError";
   case ErrorCode::ParseError:
     return "ParseError";
   }
@@ -65,7 +67,7 @@ public:
   }
 
   friend auto operator<<(std::ostream& s, const SSLError& e) -> std::ostream& {
-    s << "SSLError: " << code_to_string(e.get_code()) << " " << e.get_what();
+    s << "SSLError: " << code_to_string(e.get_code()) << ": " << e.get_what();
     return s;
   }
 };
@@ -74,10 +76,10 @@ template<class T>
 using Expected = tl::expected<T, SSLError>;
 using Unexpected = tl::unexpected<SSLError>;
 
-template<class T, class U>
-concept IsSSLType = requires (T t, U u) {
-  { t.as_ptr() } -> std::constructible_from<T>;
-};
+// template<class T, class U>
+// concept IsSSLType = requires (T t, U u) {
+//   { t.as_ptr() } -> std::constructible_from<T>;
+// };
 
 /// Error propagation macro to use in conjunction with a funtion which returns
 /// an `Expected<T>` object, it automatically unwraps the contained value if any

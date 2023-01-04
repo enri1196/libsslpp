@@ -5,6 +5,7 @@
 
 #include "gtest/gtest.h"
 
+#include "bio.hpp"
 #include "x509_certificate.hpp"
 
 constexpr std::string_view PEM_CERT =
@@ -166,4 +167,22 @@ TEST(X509Certificate, get_not_after) {
   const auto expected_date = "Feb 20 08:17:10 2023 GMT";
   std::cout << date << "\n";
   EXPECT_EQ(date, expected_date);
+}
+
+TEST(X509Certificate, get_pubkey) {
+  const auto pem_cert =
+      openssl::X509Certificate::parse(std::string_view(PEM_CERT));
+  if (!pem_cert.has_value()) {
+    std::cout << pem_cert.error() << "\n";
+    FAIL();
+  }
+  const auto pubkey = X509_get0_pubkey(pem_cert->as_ptr());
+  auto bio = openssl::SSLBio::init();
+  PEM_write_bio_PUBKEY(bio.as_ptr(), pubkey);
+  BUF_MEM *bptr = BUF_MEM_new();
+  BIO_get_mem_ptr(bio.as_ptr(), &bptr);
+  BIO_set_close(bio.as_ptr(), BIO_NOCLOSE);
+  std::string_view str{bptr->data, bptr->length};
+  std::cout << str << "\n";
+  EXPECT_TRUE(pubkey != nullptr);
 }

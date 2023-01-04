@@ -9,6 +9,8 @@
 
 #include "bio.hpp"
 #include "internal/ssl_interface.hpp"
+#include "openssl/bio.h"
+#include "openssl/buffer.h"
 
 namespace openssl {
 
@@ -31,15 +33,18 @@ public:
 
   auto to_string() const -> Expected<std::string_view> {
     auto bio = SSLBio::init();
-    if (ASN1_TIME_print(bio.as_ptr(), this->as_ptr()) == 0) {
+    if (ASN1_TIME_print(bio.as_ptr(), this->as_ptr()) != 1) {
       return Unexpected(SSLError(ErrorCode::ParseError));
     }
-    return bio.get_mem_data();
+    BUF_MEM *bptr = BUF_MEM_new();
+    BIO_get_mem_ptr(bio.as_ptr(), &bptr);
+    BIO_set_close(bio.as_ptr(), BIO_NOCLOSE);
+    return {{bptr->data, bptr->length}};
   }
 
   auto to_time_point() const -> Expected<std::chrono::system_clock::time_point> {
     struct tm tm;
-    if (ASN1_TIME_to_tm(this->as_ptr(), &tm) == 0) {
+    if (ASN1_TIME_to_tm(this->as_ptr(), &tm) != 1) {
       return Unexpected(SSLError(ErrorCode::ConversionError));
     }
     return std::chrono::system_clock::from_time_t(std::mktime(&tm));
