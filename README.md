@@ -2,5 +2,5 @@
 ## High level bindings to openssl/libressl
 
 ```
-meson setup build && meson compile -C build
+meson setup builddir && meson compile -C builddir
 ```

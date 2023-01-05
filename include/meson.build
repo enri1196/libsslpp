@@ -10,4 +10,5 @@ include = files(
     'big_num.hpp',
     'evp_pkey.hpp',
     'x509_certificate.hpp',
+    'x509_name.hpp',
 )

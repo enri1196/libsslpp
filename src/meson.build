@@ -5,4 +5,5 @@ src = files(
     'bio.cpp',
     'evp_pkey.cpp',
     'x509_certificate.cpp',
+    'x509_name.cpp',
 )
