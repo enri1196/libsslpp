@@ -1,3 +1,3 @@
 #include "evp_pkey.hpp"
 
-// openssl::EVPPkey::~EVPPkey() = default;
+openssl::EVPPkey::~EVPPkey() = default;

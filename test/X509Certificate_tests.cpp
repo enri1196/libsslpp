@@ -199,3 +199,16 @@ TEST(X509Certificate, get_pubkey) {
   std::cout << str << "\n";
   EXPECT_TRUE(pubkey != nullptr);
 }
+
+TEST(X509Certificate, get_issuer_name) {
+  const auto pem_cert =
+      openssl::X509Certificate::parse(std::string_view(PEM_CERT));
+  if (!pem_cert.has_value()) {
+    std::cout << pem_cert.error() << "\n";
+    FAIL();
+  }
+  const auto issuer = pem_cert->issuer_name()->to_string().value();
+  const auto expected_issuer = "C = US, O = Google Trust Services LLC, CN = GTS CA 1C3";
+  std::cout << issuer << "\n";
+  EXPECT_EQ(issuer, expected_issuer);
+}

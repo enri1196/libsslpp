@@ -6,18 +6,14 @@
 #include <string_view>
 #include <vector>
 
-#include <openssl/bio.h>
-#include <openssl/bn.h>
-#include <openssl/err.h>
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
-#include <openssl/pem.h>
+#include <openssl/asn1.h>
 
-#include "evp_pkey.hpp"
-#include "internal/ssl_interface.hpp"
 #include "asn1/asn1_time.hpp"
 #include "asn1/asn1_integer.hpp"
-#include "openssl/asn1.h"
+#include "evp_pkey.hpp"
+#include "x509_name.hpp"
 
 namespace openssl {
 
@@ -121,13 +117,22 @@ public:
     return {Asn1Integer(serial)};
   }
 
-  auto get_public_key() -> Expected<EVPPkey> {
+  auto public_key() -> Expected<EVPPkey> {
     auto pub_key = X509_get_pubkey(this->as_ptr());
     if (pub_key == nullptr) {
       return Unexpected(SSLError(ErrorCode::AccesError));
     }
     X509_up_ref(this->as_ptr());
     return EVPPkey(pub_key);
+  }
+
+  auto issuer_name() const -> Expected<X509Name> {
+    auto issuer = X509_get_issuer_name(this->as_ptr());
+    if (issuer == nullptr) {
+      return Unexpected(SSLError(ErrorCode::AccesError));
+    }
+    X509_up_ref(this->as_ptr());
+    return X509Name(issuer);
   }
 };  // class X509Certificate
 
@@ -142,23 +147,23 @@ public:
   auto operator=(const X509CertificateBuilder &) -> X509CertificateBuilder & = delete;
   auto operator=(X509CertificateBuilder &&) noexcept -> X509CertificateBuilder & = default;
 
-  auto set_serial_number() -> X509CertificateBuilder {
-    X509_set_serialNumber(cert, nullptr);
+  auto set_serial_number(const Asn1Integer&& integer) -> X509CertificateBuilder {
+    X509_set_serialNumber(cert, integer.as_ptr());
     return std::forward<X509CertificateBuilder>(*this);
   }
 
-  auto set_issuer_name() -> X509CertificateBuilder {
-    X509_set_issuer_name(cert, nullptr);
+  auto set_issuer_name(const X509Name&& name) -> X509CertificateBuilder {
+    X509_set_issuer_name(cert, name.as_ptr());
     return std::forward<X509CertificateBuilder>(*this);
   }
 
-  auto set_subject() -> X509CertificateBuilder {
-    X509_set_subject_name(cert, nullptr);
+  auto set_subject(const X509Name&& name) -> X509CertificateBuilder {
+    X509_set_subject_name(cert, name.as_ptr());
     return std::forward<X509CertificateBuilder>(*this);
   }
 
-  auto sign(EVP_PKEY* key) -> X509Certificate {
-    X509_sign(cert, key, nullptr);
+  auto sign(const EVPPkey&& key) -> X509Certificate {
+    X509_sign(cert, key.as_ptr(), nullptr);
     return X509Certificate(cert);
   }
 };  // class X509CertificateBuilder

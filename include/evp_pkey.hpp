@@ -10,8 +10,6 @@
 #include <openssl/ssl.h>
 
 #include "bio.hpp"
-#include "internal/ssl_interface.hpp"
-#include "openssl/objects.h"
 
 namespace openssl {
 
@@ -28,7 +26,7 @@ public:
   auto operator=(const EVPPkey &) -> EVPPkey& = default;
   auto operator=(EVPPkey &&) noexcept -> EVPPkey& = default;
   explicit EVPPkey(EVP_PKEY *ptr) : m_ssl_type(ptr, EVP_PKEY_free) {}
-  ~EVPPkey() = default;
+  ~EVPPkey();
 
   auto as_ptr() const noexcept -> EVP_PKEY* { return m_ssl_type.get(); }
 
