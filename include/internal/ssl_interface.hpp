@@ -47,6 +47,8 @@ static const auto code_to_string = [](ErrorCode c) -> std::string_view {
     return "KeyGenError";
   case ErrorCode::ParseError:
     return "ParseError";
+  default:
+    return "Unknown";
   }
 };
 
