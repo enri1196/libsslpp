@@ -17,6 +17,7 @@ libgtest = static_library(
 )
 
 test_dep = declare_dependency(
+  dependencies : dependency('threads'),
   include_directories : gtest_incdir,
   link_with : libgtest
 )

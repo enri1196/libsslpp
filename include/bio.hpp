@@ -27,7 +27,7 @@ public:
   auto operator=(SSLBio &&) noexcept -> SSLBio & = default;
   auto operator=(const SSLBio &) -> SSLBio & = default;
   explicit SSLBio(BIO *ptr) : m_ssl_type(ptr, BIO_free_all) {}
-  ~SSLBio();
+  ~SSLBio() = default;
 
   static auto init(const BIO_METHOD *mtd = BIO_s_mem()) -> SSLBio {
     return SSLBio(mtd);

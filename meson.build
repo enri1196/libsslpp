@@ -18,8 +18,9 @@ lib_args = ['-DBUILDING_LIBSSLPP', '-Wno-gnu-statement-expression',
             '-Wno-c++98-compat-pedantic', '-Wno-padded']
 
 subdir('include')
-subdir('src')
 subdir('test')
+
+inc_dir = include_directories('include')
 
 # List all dependencies, than add to deps array
 ssl = dependency('openssl', version : '>=1.1.1', required : true)
@@ -30,41 +31,19 @@ install_headers(
   subdir : 'sslpp'
 )
 
-libsslpp = shared_library(
-  'sslpp',
-  sources : src,
-  install : true,
-  cpp_args : lib_args,
-  gnu_symbol_visibility : 'hidden',
-  include_directories : include_directories('include'),
-  dependencies : deps,
+# Make this library usable as a Meson subproject.
+libsslpp_dep = declare_dependency(
+  include_directories : inc_dir,
 )
 
 test_exe = executable(
   'libsslpp_test',
   test_files,
-  link_with : libsslpp,
-  include_directories : include_directories('include'),
+  include_directories : inc_dir,
   cpp_args : ['-Wno-c++98-compat', '-Wno-c++98-compat-pedantic',
               '-Wno-global-constructors', '-Wno-padded',
               '-Wno-gnu-statement-expression',
               '-Wno-poison-system-directories'],
-  dependencies : [ssl, test_dep],
+  dependencies : [libsslpp_dep, test_dep, ssl],
 )
 test('libsslpp', test_exe)
-
-# Make this library usable as a Meson subproject.
-libsslpp_dep = declare_dependency(
-  include_directories : include_directories('include'),
-  link_with : libsslpp
-)
-
-pkg_mod = import('pkgconfig')
-pkg_mod.generate(
-  name : 'libsslpp',
-  filebase : 'libsslpp',
-  description : 'High level bindings to openssl/libressl.',
-  subdirs : 'libsslpp',
-  libraries : libsslpp,
-  version : '0.1',
-)

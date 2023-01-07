@@ -24,7 +24,7 @@ public:
   auto operator=(const BigNum &) -> BigNum& = default;
   auto operator=(BigNum &&) noexcept -> BigNum& = default;
   explicit BigNum(BIGNUM *ptr) : m_ssl_type(ptr, BN_free) {}
-  ~BigNum();
+  ~BigNum() = default;
 
   auto as_ptr() const noexcept -> BIGNUM* { return m_ssl_type.get(); }
 

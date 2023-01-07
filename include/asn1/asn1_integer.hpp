@@ -27,7 +27,7 @@ public:
   auto operator=(Asn1Integer &&) noexcept -> Asn1Integer & = default;
   auto operator=(const Asn1Integer &) -> Asn1Integer & = default;
   explicit Asn1Integer(ASN1_INTEGER *ptr) : m_ssl_type(ptr, ASN1_INTEGER_free) {}
-  ~Asn1Integer();
+  ~Asn1Integer() = default;
 
   auto as_ptr() const noexcept -> ASN1_INTEGER* { return m_ssl_type.get(); }
 

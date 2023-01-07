@@ -35,7 +35,7 @@ public:
   auto operator=(X509Certificate &&) noexcept -> X509Certificate & = default;
   auto operator=(const X509Certificate &) -> X509Certificate & = default;
   explicit X509Certificate(X509 *ptr) : m_ssl_type(ptr, X509_free) {}
-  ~X509Certificate();
+  ~X509Certificate() = default;
 
   template<class Builder>
   requires std::is_same_v<Builder, X509CertificateBuilder>
@@ -117,13 +117,13 @@ public:
     return {Asn1Integer(serial)};
   }
 
-  auto public_key() -> Expected<EVPPkey> {
+  auto public_key() const -> Expected<EVPPkey> {
     auto pub_key = X509_get_pubkey(this->as_ptr());
     if (pub_key == nullptr) {
       return Unexpected(SSLError(ErrorCode::AccesError));
     }
     X509_up_ref(this->as_ptr());
-    return EVPPkey(pub_key);
+    return {EVPPkey(pub_key)};
   }
 
   auto issuer_name() const -> Expected<X509Name> {
@@ -132,7 +132,7 @@ public:
       return Unexpected(SSLError(ErrorCode::AccesError));
     }
     X509_up_ref(this->as_ptr());
-    return X509Name(issuer);
+    return {X509Name(issuer)};
   }
 };  // class X509Certificate
 

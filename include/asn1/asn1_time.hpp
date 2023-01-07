@@ -27,7 +27,7 @@ public:
   auto operator=(Asn1Time &&) noexcept -> Asn1Time & = default;
   auto operator=(const Asn1Time &) -> Asn1Time & = default;
   explicit Asn1Time(ASN1_TIME *ptr) : m_ssl_type(ptr, ASN1_TIME_free) {}
-  ~Asn1Time();
+  ~Asn1Time() = default;
 
   auto as_ptr() const noexcept -> ASN1_TIME* { return m_ssl_type.get(); }
 

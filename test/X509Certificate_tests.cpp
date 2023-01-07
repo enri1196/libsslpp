@@ -6,7 +6,7 @@
 #include "gtest/gtest.h"
 
 #include "bio.hpp"
-#include "x509_certificate.hpp"
+#include "x509/x509_certificate.hpp"
 
 constexpr std::string_view PEM_CERT =
     "-----BEGIN CERTIFICATE-----\n"
@@ -138,9 +138,9 @@ TEST(X509Certificate, print_certificate) {
     std::cout << pem_cert.error() << "\n";
     FAIL();
   }
-  const auto cert_str = pem_cert->to_string();
+  const auto cert_str = pem_cert->to_string().value_or("");
   std::cout << pem_cert->to_string().value() << "\n";
-  EXPECT_EQ(cert_str.has_value(), true);
+  EXPECT_FALSE(cert_str.empty());
 }
 
 TEST(X509Certificate, get_not_before) {
@@ -189,15 +189,12 @@ TEST(X509Certificate, get_pubkey) {
     std::cout << pem_cert.error() << "\n";
     FAIL();
   }
-  const auto pubkey = X509_get0_pubkey(pem_cert->as_ptr());
-  auto bio = openssl::SSLBio::init();
-  PEM_write_bio_PUBKEY(bio.as_ptr(), pubkey);
-  BUF_MEM *bptr = BUF_MEM_new();
-  BIO_get_mem_ptr(bio.as_ptr(), &bptr);
-  BIO_set_close(bio.as_ptr(), BIO_NOCLOSE);
-  std::string_view str{bptr->data, bptr->length};
-  std::cout << str << "\n";
-  EXPECT_TRUE(pubkey != nullptr);
+  const auto pubkey = pem_cert->public_key()->to_string().value();
+  const auto expected_pubkey = "-----BEGIN PUBLIC KEY-----\n\
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEZB8hDjDSOkLJyjIGA+ZcGUslN+R1\n\
+uJ1FtkCZJd6EabIKbUQhCkfxw/tspb+6I43XXuLVQQQc6+x4UpNRu7yeMQ==\n\
+-----END PUBLIC KEY-----\n";
+  EXPECT_EQ(pubkey, expected_pubkey);
 }
 
 TEST(X509Certificate, get_issuer_name) {

@@ -1,14 +1,15 @@
 include = files(
-    # internal files
-    join_paths('internal', 'expected.hpp'),
-    join_paths('internal', 'ssl_interface.hpp'),
-    # asn1 files
-    join_paths('asn1', 'asn1_time.hpp'),
-    join_paths('asn1', 'asn1_integer.hpp'),
-    # include files
+    # internal
+    'internal/expected.hpp',
+    'internal/ssl_interface.hpp',
+    # asn1
+    'asn1/asn1_time.hpp',
+    'asn1/asn1_integer.hpp',
+    # x509
+    'x509/x509_certificate.hpp',
+    'x509/x509_name.hpp',
+    # include
     'bio.hpp',
     'big_num.hpp',
     'evp_pkey.hpp',
-    'x509_certificate.hpp',
-    'x509_name.hpp',
 )

@@ -21,7 +21,7 @@ public:
   auto operator=(const X509Name &) -> X509Name & = default;
   auto operator=(X509Name &&) noexcept -> X509Name & = default;
   explicit X509Name(X509_NAME *ptr) : m_ssl_type(ptr, X509_NAME_free) {}
-  ~X509Name();
+  ~X509Name() = default;
 
   auto as_ptr() const noexcept -> X509_NAME* {
     return m_ssl_type.get();
