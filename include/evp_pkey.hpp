@@ -11,6 +11,8 @@
 #include <openssl/ssl.h>
 
 #include "bio.hpp"
+#include "internal/ssl_interface.hpp"
+#include "openssl/rsa.h"
 
 namespace openssl {
 
@@ -41,30 +43,33 @@ public:
 
   template<class KeyAlgorithm>
   requires std::same_as<Rsa, KeyAlgorithm> && std::same_as<KeyType, Private>
-  static auto generate(std::size_t key_len = 2048) -> Expected<EVPPkey<Private>> {
-    auto evp = EVPPkey();
-    RSA* rsa = RSA_generate_key(static_cast<int>(key_len), RSA_F4, nullptr, nullptr);
-    if (!EVP_PKEY_assign_RSA(evp.as_ptr(), rsa)) {
+  static auto generate(std::int32_t bits = 2048) -> Expected<EVPPkey<Private>> {
+    auto evp = EVPPkey<Private>();
+    auto evp_ptr = evp.as_ptr();
+    auto evp_ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, nullptr);
+    EVP_PKEY_keygen_init(evp_ctx);
+    if (EVP_PKEY_CTX_set_rsa_keygen_bits(evp_ctx, bits) <= 0) {
+      EVP_PKEY_CTX_free(evp_ctx);
       return Unexpected(SSLError(ErrorCode::KeyGen));
     }
+    EVP_PKEY_keygen(evp_ctx, &evp_ptr);
+    EVP_PKEY_CTX_free(evp_ctx);
     return {evp};
   }
 
   template<class KeyAlgorithm>
   requires std::same_as<EcKey, KeyAlgorithm> && std::same_as<KeyType, Private>
-  static auto generate(int nid_group = NID_secp521r1) -> Expected<EVPPkey<Private>> {
-    auto evp = EVPPkey();
-    EC_KEY* ec_key = EC_KEY_new();
-    EC_GROUP* group = EC_GROUP_new_by_curve_name(nid_group);
-    if (EC_KEY_set_group(ec_key, group) != 1) {
+  static auto generate(std::int32_t nid = NID_secp521r1) -> Expected<EVPPkey<Private>> {
+    auto evp = EVPPkey<Private>();
+    auto evp_ptr = evp.as_ptr();
+    auto evp_ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, nullptr);
+    EVP_PKEY_keygen_init(evp_ctx);
+    if (EVP_PKEY_CTX_set_ec_paramgen_curve_nid(evp_ctx, nid) <= 0) {
+      EVP_PKEY_CTX_free(evp_ctx);
       return Unexpected(SSLError(ErrorCode::KeyGen));
     }
-    if (EC_KEY_generate_key(ec_key) != 1) {
-      return Unexpected(SSLError(ErrorCode::KeyGen));
-    }
-    if (!EVP_PKEY_assign_EC_KEY(evp.as_ptr(), ec_key)) {
-      return Unexpected(SSLError(ErrorCode::KeyGen));
-    }
+    EVP_PKEY_keygen(evp_ctx, &evp_ptr);
+    EVP_PKEY_CTX_free(evp_ctx);
     return {evp};
   }
 
