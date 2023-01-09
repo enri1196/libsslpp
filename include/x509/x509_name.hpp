@@ -10,17 +10,20 @@ namespace openssl {
 
 class X509Name {
 private:
-  using SSLPtr = std::shared_ptr<X509_NAME>;
+  struct SSLDeleter {
+    auto operator()(X509_NAME* ptr) { X509_NAME_free(ptr); }
+  };
+  using SSLPtr = std::unique_ptr<X509_NAME, SSLDeleter>;
   SSLPtr m_ssl_type;
 
-  X509Name() : m_ssl_type(X509_NAME_new(), X509_NAME_free) {}
+  X509Name() : m_ssl_type(X509_NAME_new()) {}
 
 public:
-  X509Name(const X509Name &) = default;
+  X509Name(const X509Name &) = delete;
   X509Name(X509Name &&) noexcept = default;
-  auto operator=(const X509Name &) -> X509Name & = default;
+  auto operator=(const X509Name &) -> X509Name & = delete;
   auto operator=(X509Name &&) noexcept -> X509Name & = default;
-  explicit X509Name(X509_NAME *ptr) : m_ssl_type(ptr, X509_NAME_free) {}
+  explicit X509Name(X509_NAME *ptr) : m_ssl_type(ptr) {}
   ~X509Name() = default;
 
   auto as_ptr() const noexcept -> X509_NAME* {

@@ -5,6 +5,9 @@ include = files(
     # asn1
     'asn1/asn1_time.hpp',
     'asn1/asn1_integer.hpp',
+    #ocsp
+    'ocsp/ocsp_request.hpp',
+    'ocsp/ocsp_response.hpp',
     # x509
     'x509/x509_certificate.hpp',
     'x509/x509_name.hpp',

@@ -9,19 +9,19 @@
 
 #include "expected.hpp"
 
-#if defined _WIN32 || defined __CYGWIN__
-  #ifdef BUILDING_LIBSSLPP
-    #define LIBSSLPP_PUBLIC __declspec(dllexport)
-  #else
-    #define LIBSSLPP_PUBLIC __declspec(dllimport)
-  #endif
-#else
-  #ifdef BUILDING_LIBSSLPP
-    #define LIBSSLPP_PUBLIC __attribute__((visibility ("default")))
-  #else
-    #define LIBSSLPP_PUBLIC
-  #endif
-#endif
+// #if defined _WIN32 || defined __CYGWIN__
+//   #ifdef BUILDING_LIBSSLPP
+//     #define LIBSSLPP_PUBLIC __declspec(dllexport)
+//   #else
+//     #define LIBSSLPP_PUBLIC __declspec(dllimport)
+//   #endif
+// #else
+//   #ifdef BUILDING_LIBSSLPP
+//     #define LIBSSLPP_PUBLIC __attribute__((visibility ("default")))
+//   #else
+//     #define LIBSSLPP_PUBLIC
+//   #endif
+// #endif
 
 namespace openssl {
 
@@ -52,7 +52,7 @@ static const auto code_to_string = [](ErrorCode c) -> std::string_view {
   }
 };
 
-class LIBSSLPP_PUBLIC SSLError {
+class SSLError {
 private:
   ErrorCode code;
   std::string_view what;

@@ -13,7 +13,7 @@
 
 namespace openssl {
 
-class LIBSSLPP_PUBLIC SSLBio {
+class SSLBio {
 private:
   using SSLPtr = std::shared_ptr<BIO>;
   SSLPtr m_ssl_type;

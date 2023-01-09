@@ -20,7 +20,7 @@ namespace openssl {
 class X509CertificateBuilder;
 class X509CertificateView;
 
-class LIBSSLPP_PUBLIC X509Certificate {
+class X509Certificate {
 private:
   using SSLPtr = std::shared_ptr<X509>;
   SSLPtr m_ssl_type;
@@ -45,7 +45,7 @@ public:
 
   auto as_ptr() const noexcept -> X509* { return m_ssl_type.get(); }
 
-  static auto parse(const std::vector<std::uint8_t>&& cert_bytes) -> Expected<X509Certificate> {
+  static auto from(const std::vector<std::uint8_t>&& cert_bytes) -> Expected<X509Certificate> {
     auto bio_bytes = SSLBio::init();
     BIO_write(bio_bytes.as_ptr(), cert_bytes.data(), static_cast<int>(cert_bytes.size()));
     auto* cert = PEM_read_bio_X509(bio_bytes.as_ptr(), nullptr, nullptr, nullptr);
@@ -55,7 +55,7 @@ public:
     return {X509Certificate(cert)};
   }
 
-  static auto parse(const std::string_view&& cert_str) -> Expected<X509Certificate> {
+  static auto from(const std::string_view&& cert_str) -> Expected<X509Certificate> {
     auto bio_str = SSLBio::init();
     BIO_write(bio_str.as_ptr(), cert_str.data(), static_cast<int>(cert_str.length()));
     auto* cert = PEM_read_bio_X509(bio_str.as_ptr(), nullptr, nullptr, nullptr);
@@ -65,7 +65,7 @@ public:
     return {X509Certificate(cert)};
   }
 
-  static auto parse(const std::filesystem::path&& file_path) -> Expected<X509Certificate> {
+  static auto from(const std::filesystem::path&& file_path) -> Expected<X509Certificate> {
     const auto bio_file = TRY(SSLBio::open_file(std::move(file_path)));
     auto cert = PEM_read_bio_X509(bio_file.as_ptr(), nullptr, nullptr, nullptr);
     if (cert == nullptr) {
@@ -74,7 +74,7 @@ public:
     return {X509Certificate(cert)};
   }
 
-  static auto parse(const SSLBio&& bio_cert) -> Expected<X509Certificate> {
+  static auto from(const SSLBio&& bio_cert) -> Expected<X509Certificate> {
     auto cert = PEM_read_bio_X509(bio_cert.as_ptr(), nullptr, nullptr, nullptr);
     if (cert == nullptr) {
       return Unexpected(SSLError(ErrorCode::ParseError, "Couldn't parse certificate from bio"));
@@ -117,13 +117,13 @@ public:
     return {Asn1Integer(serial)};
   }
 
-  auto public_key() const -> Expected<EVPPkey> {
+  auto public_key() const -> Expected<EVPPkey<Public>> {
     auto pub_key = X509_get_pubkey(this->as_ptr());
     if (pub_key == nullptr) {
       return Unexpected(SSLError(ErrorCode::AccesError));
     }
     X509_up_ref(this->as_ptr());
-    return {EVPPkey(pub_key)};
+    return {EVPPkey<Public>(pub_key)};
   }
 
   auto issuer_name() const -> Expected<X509Name> {
@@ -136,7 +136,7 @@ public:
   }
 };  // class X509Certificate
 
-class LIBSSLPP_PUBLIC X509CertificateBuilder {
+class X509CertificateBuilder {
 private:
   X509* cert{X509_new()};
 
@@ -162,7 +162,7 @@ public:
     return std::forward<X509CertificateBuilder>(*this);
   }
 
-  auto sign(const EVPPkey&& key) -> X509Certificate {
+  auto sign(const EVPPkey<Private>&& key) -> X509Certificate {
     X509_sign(cert, key.as_ptr(), nullptr);
     return X509Certificate(cert);
   }

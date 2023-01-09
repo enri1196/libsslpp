@@ -11,19 +11,22 @@ namespace openssl {
 
 class Asn1Integer;
 
-class LIBSSLPP_PUBLIC BigNum {
+class BigNum {
 private:
-  using SSLPtr = std::shared_ptr<BIGNUM>;
+  struct SSLDeleter {
+    auto operator()(BIGNUM* ptr) { BN_free(ptr); }
+  };
+  using SSLPtr = std::unique_ptr<BIGNUM, SSLDeleter>;
   SSLPtr m_ssl_type;
 
-  BigNum() : m_ssl_type(BN_new(), BN_free) {}
+  BigNum() : m_ssl_type(BN_new()) {}
 
 public:
-  BigNum(const BigNum &) = default;
+  BigNum(const BigNum &) = delete;
   BigNum(BigNum &&) noexcept = default;
-  auto operator=(const BigNum &) -> BigNum& = default;
+  auto operator=(const BigNum &) -> BigNum& = delete;
   auto operator=(BigNum &&) noexcept -> BigNum& = default;
-  explicit BigNum(BIGNUM *ptr) : m_ssl_type(ptr, BN_free) {}
+  explicit BigNum(BIGNUM *ptr) : m_ssl_type(ptr) {}
   ~BigNum() = default;
 
   auto as_ptr() const noexcept -> BIGNUM* { return m_ssl_type.get(); }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <concepts>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -13,6 +14,14 @@
 
 namespace openssl {
 
+class Private {};
+class Public {};
+
+class Rsa {};
+class EcKey {};
+
+template<class KeyType>
+requires std::same_as<Private, KeyType> || std::same_as<Public, KeyType>
 class EVPPkey {
 private:
   using SSLPtr = std::shared_ptr<EVP_PKEY>;
@@ -30,19 +39,23 @@ public:
 
   auto as_ptr() const noexcept -> EVP_PKEY* { return m_ssl_type.get(); }
 
-  static auto generate_rsa(std::size_t key_len = 2048) -> Expected<EVPPkey> {
+  template<class KeyAlgorithm>
+  requires std::same_as<Rsa, KeyAlgorithm> && std::same_as<KeyType, Private>
+  static auto generate(std::size_t key_len = 2048) -> Expected<EVPPkey<Private>> {
     auto evp = EVPPkey();
-    RSA *rsa = RSA_generate_key(static_cast<int>(key_len), RSA_F4, nullptr, nullptr);
+    RSA* rsa = RSA_generate_key(static_cast<int>(key_len), RSA_F4, nullptr, nullptr);
     if (!EVP_PKEY_assign_RSA(evp.as_ptr(), rsa)) {
       return Unexpected(SSLError(ErrorCode::KeyGen));
     }
     return {evp};
   }
 
-  static auto generate_eckey() -> Expected<EVPPkey> {
+  template<class KeyAlgorithm>
+  requires std::same_as<EcKey, KeyAlgorithm> && std::same_as<KeyType, Private>
+  static auto generate(int nid_group = NID_secp521r1) -> Expected<EVPPkey<Private>> {
     auto evp = EVPPkey();
     EC_KEY* ec_key = EC_KEY_new();
-    EC_GROUP* group = EC_GROUP_new_by_curve_name(NID_secp521r1);
+    EC_GROUP* group = EC_GROUP_new_by_curve_name(nid_group);
     if (EC_KEY_set_group(ec_key, group) != 1) {
       return Unexpected(SSLError(ErrorCode::KeyGen));
     }

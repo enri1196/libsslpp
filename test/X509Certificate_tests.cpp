@@ -90,7 +90,7 @@ constexpr std::string_view PEM_CERT =
 
 TEST(X509Certificate, parse_from_file) {
   const auto pem_cert =
-    openssl::X509Certificate::parse(
+    openssl::X509Certificate::from(
       std::filesystem::path("test/test_files/google.cer"));
   if (!pem_cert.has_value()) {
     std::cout << pem_cert.error() << "\n";
@@ -102,7 +102,7 @@ TEST(X509Certificate, parse_from_file) {
 TEST(X509Certificate, parse_from_bytes) {
   const std::vector<std::uint8_t> vec(PEM_CERT.begin(), PEM_CERT.end());
   const auto pem_cert =
-      openssl::X509Certificate::parse(std::move(vec));
+      openssl::X509Certificate::from(std::move(vec));
   if (!pem_cert.has_value()) {
     std::cout << pem_cert.error() << "\n";
     FAIL();
@@ -112,7 +112,7 @@ TEST(X509Certificate, parse_from_bytes) {
 
 TEST(X509Certificate, parse_from_string) {
   const auto pem_cert =
-      openssl::X509Certificate::parse(std::string_view(PEM_CERT));
+      openssl::X509Certificate::from(std::string_view(PEM_CERT));
   if (!pem_cert.has_value()) {
     std::cout << pem_cert.error() << "\n";
     FAIL();
@@ -123,7 +123,7 @@ TEST(X509Certificate, parse_from_string) {
 TEST(X509Certificate, parse_error) {
   const std::vector<std::uint8_t> vec{};
   const auto pem_cert =
-      openssl::X509Certificate::parse(std::move(vec));
+      openssl::X509Certificate::from(std::move(vec));
   if (pem_cert.has_value()) {
     std::cout << pem_cert.error() << "\n";
     FAIL();
@@ -133,7 +133,7 @@ TEST(X509Certificate, parse_error) {
 
 TEST(X509Certificate, print_certificate) {
   const auto pem_cert =
-      openssl::X509Certificate::parse(std::string_view(PEM_CERT));
+      openssl::X509Certificate::from(std::string_view(PEM_CERT));
   if (!pem_cert.has_value()) {
     std::cout << pem_cert.error() << "\n";
     FAIL();
@@ -145,7 +145,7 @@ TEST(X509Certificate, print_certificate) {
 
 TEST(X509Certificate, get_not_before) {
   const auto pem_cert =
-      openssl::X509Certificate::parse(std::string_view(PEM_CERT));
+      openssl::X509Certificate::from(std::string_view(PEM_CERT));
   if (!pem_cert.has_value()) {
     std::cout << pem_cert.error() << "\n";
     FAIL();
@@ -158,7 +158,7 @@ TEST(X509Certificate, get_not_before) {
 
 TEST(X509Certificate, get_not_after) {
   const auto pem_cert =
-      openssl::X509Certificate::parse(std::string_view(PEM_CERT));
+      openssl::X509Certificate::from(std::string_view(PEM_CERT));
   if (!pem_cert.has_value()) {
     std::cout << pem_cert.error() << "\n";
     FAIL();
@@ -171,7 +171,7 @@ TEST(X509Certificate, get_not_after) {
 
 TEST(X509Certificate, get_serial) {
   const auto pem_cert =
-      openssl::X509Certificate::parse(std::string_view(PEM_CERT));
+      openssl::X509Certificate::from(std::string_view(PEM_CERT));
   if (!pem_cert.has_value()) {
     std::cout << pem_cert.error() << "\n";
     FAIL();
@@ -184,7 +184,7 @@ TEST(X509Certificate, get_serial) {
 
 TEST(X509Certificate, get_pubkey) {
   const auto pem_cert =
-      openssl::X509Certificate::parse(std::string_view(PEM_CERT));
+      openssl::X509Certificate::from(std::string_view(PEM_CERT));
   if (!pem_cert.has_value()) {
     std::cout << pem_cert.error() << "\n";
     FAIL();
@@ -199,7 +199,7 @@ uJ1FtkCZJd6EabIKbUQhCkfxw/tspb+6I43XXuLVQQQc6+x4UpNRu7yeMQ==\n\
 
 TEST(X509Certificate, get_issuer_name) {
   const auto pem_cert =
-      openssl::X509Certificate::parse(std::string_view(PEM_CERT));
+      openssl::X509Certificate::from(std::string_view(PEM_CERT));
   if (!pem_cert.has_value()) {
     std::cout << pem_cert.error() << "\n";
     FAIL();
