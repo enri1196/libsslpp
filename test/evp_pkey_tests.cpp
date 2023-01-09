@@ -8,7 +8,7 @@
 #include "evp_pkey.hpp"
 
 TEST(EVPPkey, generate_rsa) {
-  const auto rsa = openssl::EVPPkey::generate_rsa();
+  const auto rsa = openssl::EVPPkey<openssl::Private>::generate<openssl::Rsa>();
   if (!rsa.has_value()) {
     std::cout << rsa.error() << "\n";
     FAIL();
@@ -18,7 +18,7 @@ TEST(EVPPkey, generate_rsa) {
 }
 
 TEST(EVPPkey, generate_eckey) {
-  const auto ec_key = openssl::EVPPkey::generate_eckey();
+  const auto ec_key = openssl::EVPPkey<openssl::Private>::generate<openssl::EcKey>();
   if (!ec_key.has_value()) {
     std::cout << ec_key.error() << "\n";
     FAIL();
