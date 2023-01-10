@@ -9,6 +9,7 @@
 #include <openssl/pem.h>
 #include <openssl/ec.h>
 #include <openssl/ssl.h>
+#include <vector>
 
 #include "bio.hpp"
 #include "internal/ssl_interface.hpp"
@@ -73,9 +74,43 @@ public:
     return {evp};
   }
 
-  auto to_string() const -> Expected<std::string_view> {
+  auto get_public() const -> EVPPkey<Public>
+  requires std::same_as<KeyType, Private>
+  {
+    auto bio = SSLBio::init();
+    auto evp_ptr = this->as_ptr();
+    PEM_write_bio_PUBKEY(bio.as_ptr(), evp_ptr);
+    EVP_PKEY_up_ref(this->as_ptr());
+    auto pub_key = PEM_read_bio_PUBKEY(bio.as_ptr(), &evp_ptr, nullptr, nullptr);
+    EVP_PKEY_up_ref(pub_key);
+    return EVPPkey<Public>(pub_key);
+  }
+
+  auto sign(const std::vector<std::uint8_t>&& bytes) const -> std::vector<std::uint8_t>
+  requires std::same_as<KeyType, Private>
+  {
+    auto ctx = EVP_PKEY_CTX_new(this->as_ptr(), nullptr);
+    EVP_PKEY_sign_init(ctx);
+    std::size_t sig_len = 0;
+    EVP_PKEY_sign(ctx, nullptr, &sig_len, bytes.data(), bytes.size());
+    std::uint8_t* sig_data = new std::uint8_t[sig_len];
+    EVP_PKEY_sign(ctx, sig_data, &sig_len, bytes.data(), bytes.size());
+    return {*sig_data, static_cast<unsigned char>(sig_len)};
+  }
+
+  auto to_string() const -> Expected<std::string_view>
+  requires std::same_as<KeyType, Public>
+  {
     auto bio = openssl::SSLBio::init();
     PEM_write_bio_PUBKEY(bio.as_ptr(), this->as_ptr());
+    return bio.get_mem_ptr();
+  }
+
+  auto to_string() const -> Expected<std::string_view>
+  requires std::same_as<KeyType, Private>
+  {
+    auto bio = openssl::SSLBio::init();
+    PEM_write_bio_PrivateKey(bio.as_ptr(), this->as_ptr(), nullptr, nullptr, 0, nullptr, nullptr);
     return bio.get_mem_ptr();
   }
 };
