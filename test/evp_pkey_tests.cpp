@@ -33,7 +33,8 @@ TEST(EVPPkey, get_public_key) {
     std::cout << ec_key.error() << "\n";
     FAIL();
   }
-  auto str = ec_key->get_public().to_string().value();
+  const auto pub_key = ec_key->get_public();
+  const auto str = pub_key.to_string().value();
   std::cout << str << "\n";
   EXPECT_EQ(ec_key.has_value() && !str.empty(), true);
 }

@@ -189,12 +189,13 @@ TEST(X509Certificate, get_pubkey) {
     std::cout << pem_cert.error() << "\n";
     FAIL();
   }
-  const auto pubkey = pem_cert->public_key()->to_string().value();
+  const auto pubkey = pem_cert->public_key().value();
+  const auto key_str = pubkey.to_string().value();
   const auto expected_pubkey = "-----BEGIN PUBLIC KEY-----\n\
 MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEZB8hDjDSOkLJyjIGA+ZcGUslN+R1\n\
 uJ1FtkCZJd6EabIKbUQhCkfxw/tspb+6I43XXuLVQQQc6+x4UpNRu7yeMQ==\n\
 -----END PUBLIC KEY-----\n";
-  EXPECT_EQ(pubkey, expected_pubkey);
+  EXPECT_EQ(key_str, expected_pubkey);
 }
 
 TEST(X509Certificate, get_issuer_name) {

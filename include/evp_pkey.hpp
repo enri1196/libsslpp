@@ -37,14 +37,16 @@ public:
   EVPPkey(EVPPkey &&) noexcept = default;
   auto operator=(const EVPPkey &) -> EVPPkey& = default;
   auto operator=(EVPPkey &&) noexcept -> EVPPkey& = default;
-  explicit EVPPkey(EVP_PKEY *ptr) : m_ssl_type(ptr, EVP_PKEY_free) {}
+  explicit EVPPkey(EVP_PKEY *ptr,
+                   std::function<void(EVP_PKEY *)> free_fn = EVP_PKEY_free)
+      : m_ssl_type(ptr, free_fn) {}
   ~EVPPkey() = default;
 
   auto as_ptr() const noexcept -> EVP_PKEY* { return m_ssl_type.get(); }
 
   template<class KeyAlgorithm>
   requires std::same_as<Rsa, KeyAlgorithm> && std::same_as<KeyType, Private>
-  static auto generate(std::int32_t bits = 2048) -> Expected<EVPPkey<Private>> {
+  static auto generate(const std::int32_t bits = 2048) -> Expected<EVPPkey<Private>> {
     auto evp = EVPPkey<Private>();
     auto evp_ptr = evp.as_ptr();
     auto evp_ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, nullptr);
@@ -60,7 +62,7 @@ public:
 
   template<class KeyAlgorithm>
   requires std::same_as<EcKey, KeyAlgorithm> && std::same_as<KeyType, Private>
-  static auto generate(std::int32_t nid = NID_secp521r1) -> Expected<EVPPkey<Private>> {
+  static auto generate(const std::int32_t nid = NID_secp521r1) -> Expected<EVPPkey<Private>> {
     auto evp = EVPPkey<Private>();
     auto evp_ptr = evp.as_ptr();
     auto evp_ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, nullptr);
@@ -79,11 +81,10 @@ public:
   {
     auto bio = SSLBio::init();
     auto evp_ptr = this->as_ptr();
-    PEM_write_bio_PUBKEY(bio.as_ptr(), evp_ptr);
     EVP_PKEY_up_ref(this->as_ptr());
+    PEM_write_bio_PUBKEY(bio.as_ptr(), evp_ptr);
     auto pub_key = PEM_read_bio_PUBKEY(bio.as_ptr(), &evp_ptr, nullptr, nullptr);
-    EVP_PKEY_up_ref(pub_key);
-    return EVPPkey<Public>(pub_key);
+    return EVPPkey<Public>(pub_key, [](EVP_PKEY*){});
   }
 
   auto sign(const std::vector<std::uint8_t>&& bytes) const -> std::vector<std::uint8_t>
@@ -93,9 +94,11 @@ public:
     EVP_PKEY_sign_init(ctx);
     std::size_t sig_len = 0;
     EVP_PKEY_sign(ctx, nullptr, &sig_len, bytes.data(), bytes.size());
-    std::uint8_t* sig_data = new std::uint8_t[sig_len];
-    EVP_PKEY_sign(ctx, sig_data, &sig_len, bytes.data(), bytes.size());
-    return {*sig_data, static_cast<unsigned char>(sig_len)};
+    std::vector<std::uint8_t> sig{};
+    sig.reserve(sig_len);
+    sig.resize(sig_len);
+    EVP_PKEY_sign(ctx, sig.data(), &sig_len, bytes.data(), bytes.size());
+    return sig;
   }
 
   auto to_string() const -> Expected<std::string_view>

@@ -12,20 +12,19 @@ namespace openssl {
 
 class OCSPRequest {
 private:
-  struct SSLDeleter {
-    auto operator()(OCSP_REQUEST* ptr) { OCSP_REQUEST_free(ptr); }
-  };
-  using SSLPtr = std::unique_ptr<OCSP_REQUEST, SSLDeleter>;
+  using SSLPtr = std::shared_ptr<OCSP_REQUEST>;
   SSLPtr m_ssl_type;
 
-  OCSPRequest() : m_ssl_type(OCSP_REQUEST_new()) {}
+  OCSPRequest() : m_ssl_type(OCSP_REQUEST_new(), OCSP_REQUEST_free) {}
 
 public:
-  OCSPRequest(const OCSPRequest &) = delete;
+  OCSPRequest(const OCSPRequest &) = default;
   OCSPRequest(OCSPRequest &&) noexcept = default;
-  auto operator=(const OCSPRequest &) -> OCSPRequest & = delete;
+  auto operator=(const OCSPRequest &) -> OCSPRequest & = default;
   auto operator=(OCSPRequest &&) noexcept -> OCSPRequest & = default;
-  OCSPRequest(OCSP_REQUEST* req) : m_ssl_type(req) {};
+  explicit OCSPRequest(OCSP_REQUEST *ptr,
+                       std::function<void(OCSP_REQUEST *)> free_fn = OCSP_REQUEST_free)
+      : m_ssl_type(ptr, free_fn) {}
   ~OCSPRequest() = default;
 
   auto as_ptr() const noexcept -> OCSP_REQUEST* { return m_ssl_type.get(); }

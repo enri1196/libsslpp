@@ -17,20 +17,19 @@ namespace openssl {
 
 class Asn1Integer {
 private:
-  struct SSLDeleter {
-    auto operator()(ASN1_INTEGER* ptr) { ASN1_INTEGER_free(ptr); }
-  };
-  using SSLPtr = std::unique_ptr<ASN1_INTEGER, SSLDeleter>;
+  using SSLPtr = std::shared_ptr<ASN1_INTEGER>;
   SSLPtr m_ssl_type;
 
-  Asn1Integer() : m_ssl_type(ASN1_INTEGER_new()) {}
+  Asn1Integer() : m_ssl_type(ASN1_INTEGER_new(), ASN1_INTEGER_free) {}
 
 public:
   Asn1Integer(Asn1Integer &&) noexcept = default;
-  Asn1Integer(const Asn1Integer &) = delete;
+  Asn1Integer(const Asn1Integer &) = default;
   auto operator=(Asn1Integer &&) noexcept -> Asn1Integer & = default;
-  auto operator=(const Asn1Integer &) -> Asn1Integer & = delete;
-  explicit Asn1Integer(ASN1_INTEGER *ptr) : m_ssl_type(ptr) {}
+  auto operator=(const Asn1Integer &) -> Asn1Integer & = default;
+  explicit Asn1Integer(ASN1_INTEGER *ptr,
+                      std::function<void(ASN1_INTEGER *)> free_fn = ASN1_INTEGER_free)
+      : m_ssl_type(ptr, free_fn) {}
   ~Asn1Integer() = default;
 
   auto as_ptr() const noexcept -> ASN1_INTEGER* { return m_ssl_type.get(); }

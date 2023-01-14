@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <string_view>
 #include <concepts>
 
@@ -13,20 +14,19 @@ class Asn1Integer;
 
 class BigNum {
 private:
-  struct SSLDeleter {
-    auto operator()(BIGNUM* ptr) { BN_free(ptr); }
-  };
-  using SSLPtr = std::unique_ptr<BIGNUM, SSLDeleter>;
+  using SSLPtr = std::shared_ptr<BIGNUM>;
   SSLPtr m_ssl_type;
 
-  BigNum() : m_ssl_type(BN_new()) {}
+  BigNum() : m_ssl_type(BN_new(), BN_free) {}
 
 public:
-  BigNum(const BigNum &) = delete;
+  BigNum(const BigNum &) = default;
   BigNum(BigNum &&) noexcept = default;
-  auto operator=(const BigNum &) -> BigNum& = delete;
+  auto operator=(const BigNum &) -> BigNum& = default;
   auto operator=(BigNum &&) noexcept -> BigNum& = default;
-  explicit BigNum(BIGNUM *ptr) : m_ssl_type(ptr) {}
+  explicit BigNum(BIGNUM *ptr,
+                  std::function<void(BIGNUM *)> free_fn = BN_free)
+      : m_ssl_type(ptr, free_fn) {}
   ~BigNum() = default;
 
   auto as_ptr() const noexcept -> BIGNUM* { return m_ssl_type.get(); }

@@ -13,20 +13,19 @@ namespace openssl {
 
 class OCSPResponse {
 private:
-  struct SSLDeleter {
-    auto operator()(OCSP_RESPONSE* ptr) { OCSP_RESPONSE_free(ptr); }
-  };
-  using SSLPtr = std::unique_ptr<OCSP_RESPONSE, SSLDeleter>;
+  using SSLPtr = std::shared_ptr<OCSP_RESPONSE>;
   SSLPtr m_ssl_type;
 
-  OCSPResponse() : m_ssl_type(OCSP_RESPONSE_new()) {}
+  OCSPResponse() : m_ssl_type(OCSP_RESPONSE_new(), OCSP_RESPONSE_free) {}
 
 public:
-  OCSPResponse(const OCSPResponse &) = delete;
+  OCSPResponse(const OCSPResponse &) = default;
   OCSPResponse(OCSPResponse &&) noexcept = default;
-  auto operator=(const OCSPResponse &) -> OCSPResponse & = delete;
+  auto operator=(const OCSPResponse &) -> OCSPResponse & = default;
   auto operator=(OCSPResponse &&) noexcept -> OCSPResponse & = default;
-  OCSPResponse(OCSP_RESPONSE* resp) : m_ssl_type(resp) {}
+  explicit OCSPResponse(OCSP_RESPONSE *ptr,
+                        std::function<void(OCSP_RESPONSE *)> free_fn = OCSP_RESPONSE_free)
+      : m_ssl_type(ptr, free_fn) {}
   ~OCSPResponse() = default;
 
   auto as_ptr() const noexcept -> OCSP_RESPONSE* { return m_ssl_type.get(); }
