@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 #include <ctime>
 #include <memory>
 #include <chrono>
@@ -11,7 +12,6 @@
 #include "bio.hpp"
 #include "big_num.hpp"
 #include "internal/ssl_interface.hpp"
-#include "openssl/ossl_typ.h"
 
 namespace openssl {
 
@@ -40,6 +40,23 @@ public:
       return Unexpected(SSLError(ErrorCode::ConversionError));
     }
     return {Asn1Integer(asn_int)};
+  }
+
+  // std::uint64_t r = 3'125'621'985'792'713'081;
+  static auto from(const std::int64_t new_int) -> Expected<Asn1Integer> {
+    auto asn_int = Asn1Integer();
+    if (ASN1_INTEGER_set_int64(asn_int.as_ptr(), new_int) <= 0) {
+      return Unexpected(SSLError(ErrorCode::ConversionError));
+    }
+    return {std::move(asn_int)};
+  }
+
+  static auto from(const std::uint64_t new_int) -> Expected<Asn1Integer> {
+    auto asn_int = Asn1Integer();
+    if (ASN1_INTEGER_set_uint64(asn_int.as_ptr(), new_int) <= 0) {
+      return Unexpected(SSLError(ErrorCode::ConversionError));
+    }
+    return {std::move(asn_int)};
   }
 
   auto to_string() const -> Expected<std::string_view> {
