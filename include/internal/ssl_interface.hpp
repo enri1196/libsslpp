@@ -6,6 +6,7 @@
 #include <string_view>
 
 #include <openssl/err.h>
+#include <type_traits>
 
 #include "expected.hpp"
 
@@ -47,8 +48,8 @@ static const auto code_to_string = [](ErrorCode c) -> std::string_view {
     return "KeyGenError";
   case ErrorCode::ParseError:
     return "ParseError";
-  default:
-    return "Unknown";
+  // default:
+  //   return "Unknown";
   }
 };
 
@@ -78,10 +79,10 @@ template<class T>
 using Expected = tl::expected<T, SSLError>;
 using Unexpected = tl::unexpected<SSLError>;
 
-// template<class T, class U>
-// concept IsSSLType = requires (T t, U u) {
-//   { t.as_ptr() } -> std::constructible_from<T>;
-// };
+template <typename T>
+concept HasAsPtr = requires(T a) {
+  { a.as_ptr() } -> std::same_as<decltype(a.as_ptr())>;
+};
 
 /// Error propagation macro to use in conjunction with a funtion which returns
 /// an `Expected<T>` object, it automatically unwraps the contained value if any
