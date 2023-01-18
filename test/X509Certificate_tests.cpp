@@ -1,12 +1,16 @@
 #include <cstdint>
+#include <exception>
 #include <iostream>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include "gtest/gtest.h"
 
+#include "big_num.hpp"
 #include "bio.hpp"
 #include "x509/x509_certificate.hpp"
+#include "x509/x509_store.hpp"
 
 constexpr std::string_view PEM_CERT =
     "-----BEGIN CERTIFICATE-----\n"
@@ -182,6 +186,21 @@ TEST(X509Certificate, get_serial) {
   EXPECT_EQ(serial, expected_serial);
 }
 
+TEST(X509Certificate, get_serial_to_BN) {
+  const auto pem_cert =
+      openssl::X509Certificate::from(std::string_view(PEM_CERT));
+  if (!pem_cert.has_value()) {
+    std::cout << pem_cert.error() << "\n";
+    FAIL();
+  }
+  const auto serial = pem_cert->serial_number().value();
+  const auto bn = openssl::BigNum::from(std::move(serial)).value();
+  const auto bn_str = bn.to_string().value();
+  const auto expected_serial = "312562198579271308107566801634569296046";
+  std::cout << bn_str << "\n";
+  EXPECT_EQ(bn_str, expected_serial);
+}
+
 TEST(X509Certificate, get_pubkey) {
   const auto pem_cert =
       openssl::X509Certificate::from(std::string_view(PEM_CERT));
@@ -209,4 +228,12 @@ TEST(X509Certificate, get_issuer_name) {
   const auto expected_issuer = "C = US, O = Google Trust Services LLC, CN = GTS CA 1C3";
   std::cout << issuer << "\n";
   EXPECT_EQ(issuer, expected_issuer);
+}
+
+TEST(X509Certificate, x509_store) {
+  const auto pem_cert =
+      openssl::X509Certificate::from(std::string_view(PEM_CERT)).value();
+  const auto store = openssl::X509Store::init();
+  store.add_cert(std::move(pem_cert));
+  EXPECT_EQ(store.len(), 1);
 }

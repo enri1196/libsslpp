@@ -11,6 +11,7 @@ include = files(
     # x509
     'x509/x509_certificate.hpp',
     'x509/x509_name.hpp',
+    'x509/x509_store.hpp',
     # include
     'bio.hpp',
     'big_num.hpp',

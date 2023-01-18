@@ -4,10 +4,12 @@ project(
   default_options : [
     'warning_level=everything',
     'cpp_std=c++20',
-    'buildtype=release',
+    'cpp_eh=none',
+    'buildtype=release', # or debug
     'b_lto=true',
     'b_lto_mode=default',
     'b_lto_threads=8',
+    # 'b_sanitize=memory'
   ],
 )
 
