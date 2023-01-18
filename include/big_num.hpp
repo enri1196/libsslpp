@@ -29,6 +29,19 @@ public:
       : m_ssl_type(ptr, free_fn) {}
   ~BigNum() = default;
 
+  friend std::strong_ordering operator<=>(const BigNum& lhs, const BigNum& rhs) {
+    switch (BN_cmp(lhs.as_ptr(), rhs.as_ptr())) {
+    case -1:
+      return std::strong_ordering::less;
+    case 0:
+      return std::strong_ordering::equal;
+    case 1:
+      return std::strong_ordering::greater;
+    default:
+      return std::strong_ordering::equal; // shouldn't be reachable
+    }
+  }
+
   auto as_ptr() const noexcept -> BIGNUM* { return m_ssl_type.get(); }
 
   template<class Asn1Int>
