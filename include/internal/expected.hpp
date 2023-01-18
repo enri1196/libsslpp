@@ -96,9 +96,9 @@ struct unexpect_t {
 static constexpr unexpect_t unexpect{};
 
 namespace detail {
-template <typename E> [[noreturn]] constexpr void throw_exception(E &&e) {
+template <typename E> [[noreturn]] constexpr void throw_exception([[maybe_unused]]E &&e) {
 
-  throw std::forward<E>(e);
+  __builtin_unreachable();
 }
 
 template <class T> using remove_const_t = typename std::remove_const<T>::type;
@@ -115,7 +115,7 @@ template <class B> struct conjunction<B> : B {};
 template <class B, class... Bs>
 struct conjunction<B, Bs...>
     : std::conditional<bool(B::value), conjunction<Bs...>, B>::type {};
-
+# 269 "expected.hpp"
 template <typename Fn, typename... Args,
 
           typename = enable_if_t<std::is_member_pointer<decay_t<Fn>>::value>,
@@ -150,7 +150,7 @@ using invoke_result = invoke_result_impl<F, void, Us...>;
 
 template <class F, class... Us>
 using invoke_result_t = typename invoke_result<F, Us...>::type;
-
+# 315 "expected.hpp"
 namespace swap_adl_tests {
 
 struct tag {};
@@ -515,10 +515,7 @@ struct expected_operations_base : expected_storage_base<T, E> {
         unexpected<E>(std::forward<Args>(args)...);
     this->m_has_val = false;
   }
-
-  template <class U = T,
-            detail::enable_if_t<std::is_nothrow_copy_constructible<U>::value>
-                * = nullptr>
+# 808 "expected.hpp"
   void assign(const expected_operations_base &rhs) noexcept {
     if (!this->m_has_val && rhs.m_has_val) {
       geterr().~unexpected<E>();
@@ -528,70 +525,12 @@ struct expected_operations_base : expected_storage_base<T, E> {
     }
   }
 
-  template <class U = T,
-            detail::enable_if_t<!std::is_nothrow_copy_constructible<U>::value &&
-                                std::is_nothrow_move_constructible<U>::value>
-                * = nullptr>
-  void assign(const expected_operations_base &rhs) noexcept {
-    if (!this->m_has_val && rhs.m_has_val) {
-      T tmp = rhs.get();
-      geterr().~unexpected<E>();
-      construct(std::move(tmp));
-    } else {
-      assign_common(rhs);
-    }
-  }
-
-  template <class U = T,
-            detail::enable_if_t<!std::is_nothrow_copy_constructible<U>::value &&
-                                !std::is_nothrow_move_constructible<U>::value>
-                * = nullptr>
-  void assign(const expected_operations_base &rhs) {
-    if (!this->m_has_val && rhs.m_has_val) {
-      auto tmp = std::move(geterr());
-      geterr().~unexpected<E>();
-
-      try {
-        construct(rhs.get());
-      } catch (...) {
-        geterr() = std::move(tmp);
-        throw;
-      }
-
-    } else {
-      assign_common(rhs);
-    }
-  }
-
-  template <class U = T,
-            detail::enable_if_t<std::is_nothrow_move_constructible<U>::value>
-                * = nullptr>
   void assign(expected_operations_base &&rhs) noexcept {
     if (!this->m_has_val && rhs.m_has_val) {
       geterr().~unexpected<E>();
       construct(std::move(rhs).get());
     } else {
-      assign_common(std::move(rhs));
-    }
-  }
-
-  template <class U = T,
-            detail::enable_if_t<!std::is_nothrow_move_constructible<U>::value>
-                * = nullptr>
-  void assign(expected_operations_base &&rhs) {
-    if (!this->m_has_val && rhs.m_has_val) {
-      auto tmp = std::move(geterr());
-      geterr().~unexpected<E>();
-
-      try {
-        construct(std::move(rhs).get());
-      } catch (...) {
-        geterr() = std::move(tmp);
-        throw;
-      }
-
-    } else {
-      assign_common(std::move(rhs));
+      assign_common(rhs);
     }
   }
 
@@ -944,7 +883,7 @@ public:
 private:
   E m_val;
 };
-
+# 1235 "expected.hpp"
 template <class T, class E>
 class expected : private detail::expected_move_assign_base<T, E>,
                  private detail::expected_delete_ctor_base<T, E>,
@@ -1002,7 +941,7 @@ public:
   template <class F> constexpr auto and_then(F &&f) const && {
     return and_then_impl(std::move(*this), std::forward<F>(f));
   }
-
+# 1327 "expected.hpp"
   template <class F> constexpr auto map(F &&f) & {
     return expected_map_impl(*this, std::forward<F>(f));
   }
@@ -1015,7 +954,7 @@ public:
   template <class F> constexpr auto map(F &&f) const && {
     return expected_map_impl(std::move(*this), std::forward<F>(f));
   }
-
+# 1371 "expected.hpp"
   template <class F> constexpr auto transform(F &&f) & {
     return expected_map_impl(*this, std::forward<F>(f));
   }
@@ -1028,7 +967,7 @@ public:
   template <class F> constexpr auto transform(F &&f) const && {
     return expected_map_impl(std::move(*this), std::forward<F>(f));
   }
-
+# 1415 "expected.hpp"
   template <class F> constexpr auto map_error(F &&f) & {
     return map_error_impl(*this, std::forward<F>(f));
   }
@@ -1041,7 +980,7 @@ public:
   template <class F> constexpr auto map_error(F &&f) const && {
     return map_error_impl(std::move(*this), std::forward<F>(f));
   }
-
+# 1456 "expected.hpp"
   template <class F> expected constexpr or_else(F &&f) & {
     return or_else_impl(*this, std::forward<F>(f));
   }
@@ -1241,14 +1180,9 @@ public:
     } else {
       auto tmp = std::move(err());
       err().~unexpected<E>();
-
-      try {
-        ::new (valptr()) T(std::forward<U>(v));
-        this->m_has_val = true;
-      } catch (...) {
-        err() = std::move(tmp);
-        throw;
-      }
+# 1668 "expected.hpp"
+      ::new (valptr()) T(std::forward<U>(v));
+      this->m_has_val = true;
     }
 
     return *this;
@@ -1305,14 +1239,9 @@ public:
     } else {
       auto tmp = std::move(err());
       err().~unexpected<E>();
-
-      try {
-        ::new (valptr()) T(std::forward<Args>(args)...);
-        this->m_has_val = true;
-      } catch (...) {
-        err() = std::move(tmp);
-        throw;
-      }
+# 1737 "expected.hpp"
+      ::new (valptr()) T(std::forward<Args>(args)...);
+      this->m_has_val = true;
     }
   }
 
@@ -1340,14 +1269,9 @@ public:
     } else {
       auto tmp = std::move(err());
       err().~unexpected<E>();
-
-      try {
-        ::new (valptr()) T(il, std::forward<Args>(args)...);
-        this->m_has_val = true;
-      } catch (...) {
-        err() = std::move(tmp);
-        throw;
-      }
+# 1777 "expected.hpp"
+      ::new (valptr()) T(il, std::forward<Args>(args)...);
+      this->m_has_val = true;
     }
   }
 
@@ -1395,16 +1319,11 @@ private:
       move_constructing_e_can_throw) {
     auto temp = std::move(val());
     val().~T();
-
-    try {
-      ::new (errptr()) unexpected_type(std::move(rhs.err()));
-      rhs.err().~unexpected_type();
-      ::new (rhs.valptr()) T(std::move(temp));
-      std::swap(this->m_has_val, rhs.m_has_val);
-    } catch (...) {
-      val() = std::move(temp);
-      throw;
-    }
+# 1840 "expected.hpp"
+    ::new (errptr()) unexpected_type(std::move(rhs.err()));
+    rhs.err().~unexpected_type();
+    ::new (rhs.valptr()) T(std::move(temp));
+    std::swap(this->m_has_val, rhs.m_has_val);
   }
 
   void swap_where_only_one_has_value_and_t_is_not_void(
@@ -1412,16 +1331,11 @@ private:
       e_is_nothrow_move_constructible) {
     auto temp = std::move(rhs.err());
     rhs.err().~unexpected_type();
-
-    try {
-      ::new (rhs.valptr()) T(std::move(val()));
-      val().~T();
-      ::new (errptr()) unexpected_type(std::move(temp));
-      std::swap(this->m_has_val, rhs.m_has_val);
-    } catch (...) {
-      rhs.err() = std::move(temp);
-      throw;
-    }
+# 1863 "expected.hpp"
+    ::new (rhs.valptr()) T(std::move(val()));
+    val().~T();
+    ::new (errptr()) unexpected_type(std::move(temp));
+    std::swap(this->m_has_val, rhs.m_has_val);
   }
 
 public:
@@ -1548,7 +1462,7 @@ constexpr auto and_then_impl(Exp &&exp, F &&f) {
   return exp.has_value() ? detail::invoke(std::forward<F>(f))
                          : Ret(unexpect, std::forward<Exp>(exp).error());
 }
-
+# 2021 "expected.hpp"
 template <class Exp, class F,
           detail::enable_if_t<!std::is_void<exp_t<Exp>>::value> * = nullptr,
           class Ret = decltype(detail::invoke(std::declval<F>(),
@@ -1599,7 +1513,7 @@ auto expected_map_impl(Exp &&exp, F &&f) {
 
   return result(unexpect, std::forward<Exp>(exp).error());
 }
-
+# 2132 "expected.hpp"
 template <class Exp, class F,
           detail::enable_if_t<!std::is_void<exp_t<Exp>>::value> * = nullptr,
           class Ret = decltype(detail::invoke(std::declval<F>(),
@@ -1652,7 +1566,7 @@ auto map_error_impl(Exp &&exp, F &&f) {
   detail::invoke(std::forward<F>(f), std::forward<Exp>(exp).error());
   return result(unexpect, monostate{});
 }
-
+# 2247 "expected.hpp"
 template <class Exp, class F,
           class Ret = decltype(detail::invoke(std::declval<F>(),
                                               std::declval<Exp>().error())),
@@ -1674,7 +1588,7 @@ detail::decay_t<Exp> or_else_impl(Exp &&exp, F &&f) {
                                            std::forward<Exp>(exp).error()),
                             std::forward<Exp>(exp));
 }
-
+# 2291 "expected.hpp"
 } // namespace detail
 
 template <class T, class E, class U, class F>
