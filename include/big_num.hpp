@@ -32,7 +32,7 @@ public:
   auto as_ptr() const noexcept -> BIGNUM* { return m_ssl_type.get(); }
 
   template<class Asn1Int>
-  requires std::same_as<Asn1Integer, Asn1Int>
+  requires std::same_as<Asn1Integer, Asn1Int> && HasAsPtr<Asn1Int>
   static auto from(const Asn1Int&& asn1_int) -> Expected<BigNum> {
     auto bn = ASN1_INTEGER_to_BN(asn1_int.as_ptr(), nullptr);
     if (bn == nullptr) {

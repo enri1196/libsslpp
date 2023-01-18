@@ -47,8 +47,11 @@ public:
 
   auto get_mem_ptr() -> Expected<std::string_view> {
     BUF_MEM *bptr = BUF_MEM_new();
-    BIO_get_mem_ptr(this->as_ptr(), &bptr);
-    BIO_set_close(this->as_ptr(), BIO_NOCLOSE);
+    // Silence warnings
+    // BIO_get_mem_ptr(this->as_ptr(), &bptr);
+    BIO_ctrl(this->as_ptr(), 115, 0, reinterpret_cast<char *>(&bptr));
+    // BIO_set_close(this->as_ptr(), BIO_NOCLOSE);
+    BIO_ctrl(this->as_ptr(), 9, (0x00), nullptr);
     return {{bptr->data, bptr->length}};
   }
 };  // class SSLBio
