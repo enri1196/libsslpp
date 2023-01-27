@@ -14,12 +14,38 @@
 #include "asn1/asn1_integer.hpp"
 #include "asn1/asn1_time.hpp"
 #include "evp_pkey.hpp"
+#include "internal/ssl_interface.hpp"
 #include "openssl/ossl_typ.h"
 #include "x509_name.hpp"
 
 namespace openssl {
 
 class X509CertificateBuilder;
+
+enum class KeyUsage : std::uint32_t {
+  DIGITAL_SIGNATURE = KU_DIGITAL_SIGNATURE,
+  NON_REPUDIATION = KU_NON_REPUDIATION,
+  KEY_ENCIPHERMENT = KU_KEY_ENCIPHERMENT,
+  DATA_ENCIPHERMENT = KU_DATA_ENCIPHERMENT,
+  KEY_AGREEMENT = KU_KEY_AGREEMENT,
+  KEY_CERT_SIGN = KU_KEY_CERT_SIGN,
+  CRL_SIGN = KU_CRL_SIGN,
+  ENCIPHER_ONLY = KU_ENCIPHER_ONLY,
+  DECIPHER_ONLY = KU_DECIPHER_ONLY,
+  ABSENT = UINT32_MAX
+};
+
+enum class ExtendedKeyUsage : std::uint32_t {
+  SSL_SERVER = XKU_SSL_SERVER,
+  SSL_CLIENT = XKU_SSL_CLIENT,
+  SMIME = XKU_SMIME,
+  CODE_SIGN = XKU_CODE_SIGN,
+  OCSP_SIGN = XKU_OCSP_SIGN,
+  TIMESTAMP = XKU_TIMESTAMP,
+  DVCS = XKU_DVCS,
+  ANYEKU = XKU_ANYEKU,
+  ABSENT = UINT32_MAX
+};
 
 class X509Certificate {
 private:
@@ -62,8 +88,7 @@ public:
   static auto from(const std::string_view &&cert_str)
       -> Expected<X509Certificate> {
     auto bio_str = SSLBio::init();
-    BIO_write(bio_str.as_ptr(), cert_str.data(),
-              static_cast<int>(cert_str.length()));
+    bio_str.write_mem(std::move(cert_str));
     auto *cert = PEM_read_bio_X509(bio_str.as_ptr(), nullptr, nullptr, nullptr);
     if (cert == nullptr) {
       return Unexpected(SSLError(ErrorCode::ParseError));
@@ -138,6 +163,22 @@ public:
     }
     return {X509Name(issuer, [](X509_NAME*){})};
   }
+
+  auto key_usage() -> Expected<KeyUsage> {
+    auto key_usage = X509_get_key_usage(this->as_ptr());
+    if (static_cast<KeyUsage>(key_usage) == KeyUsage::ABSENT) {
+      return Unexpected(SSLError(ErrorCode::AccesError));
+    }
+    return {static_cast<KeyUsage>(key_usage)};
+  }
+
+  auto extended_key_usage() -> Expected<ExtendedKeyUsage> {
+    auto key_usage = X509_get_extended_key_usage(this->as_ptr());
+    if (static_cast<ExtendedKeyUsage>(key_usage) == ExtendedKeyUsage::ABSENT) {
+      return Unexpected(SSLError(ErrorCode::AccesError));
+    }
+    return {static_cast<ExtendedKeyUsage>(key_usage)};
+  }
 }; // class X509Certificate
 
 class X509CertificateBuilder {
@@ -166,6 +207,11 @@ public:
 
   auto set_subject(const X509Name &&name) -> X509CertificateBuilder {
     X509_set_subject_name(cert, name.as_ptr());
+    return std::forward<X509CertificateBuilder>(*this);
+  }
+
+  auto set_extension(X509_EXTENSION *ex) -> X509CertificateBuilder {
+    X509_add_ext(cert, ex, -1);
     return std::forward<X509CertificateBuilder>(*this);
   }
 
