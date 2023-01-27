@@ -54,6 +54,11 @@ public:
     BIO_ctrl(this->as_ptr(), 9, (0x00), nullptr);
     return {{bptr->data, bptr->length}};
   }
+
+  auto write_mem(const std::string_view&& buf) {
+    BIO_write(this->as_ptr(), buf.data(),
+              static_cast<int>(buf.length()));
+  }
 };  // class SSLBio
 
 } // namespace openssl
