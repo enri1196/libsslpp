@@ -17,35 +17,11 @@
 #include "internal/ssl_interface.hpp"
 #include "openssl/ossl_typ.h"
 #include "x509_name.hpp"
+#include "x509_extension.hpp"
 
 namespace openssl {
 
 class X509CertificateBuilder;
-
-enum class KeyUsage : std::uint32_t {
-  DIGITAL_SIGNATURE = KU_DIGITAL_SIGNATURE,
-  NON_REPUDIATION = KU_NON_REPUDIATION,
-  KEY_ENCIPHERMENT = KU_KEY_ENCIPHERMENT,
-  DATA_ENCIPHERMENT = KU_DATA_ENCIPHERMENT,
-  KEY_AGREEMENT = KU_KEY_AGREEMENT,
-  KEY_CERT_SIGN = KU_KEY_CERT_SIGN,
-  CRL_SIGN = KU_CRL_SIGN,
-  ENCIPHER_ONLY = KU_ENCIPHER_ONLY,
-  DECIPHER_ONLY = KU_DECIPHER_ONLY,
-  ABSENT = UINT32_MAX
-};
-
-enum class ExtendedKeyUsage : std::uint32_t {
-  SSL_SERVER = XKU_SSL_SERVER,
-  SSL_CLIENT = XKU_SSL_CLIENT,
-  SMIME = XKU_SMIME,
-  CODE_SIGN = XKU_CODE_SIGN,
-  OCSP_SIGN = XKU_OCSP_SIGN,
-  TIMESTAMP = XKU_TIMESTAMP,
-  DVCS = XKU_DVCS,
-  ANYEKU = XKU_ANYEKU,
-  ABSENT = UINT32_MAX
-};
 
 class X509Certificate {
 private:
@@ -64,7 +40,7 @@ public:
       : m_ssl_type(ptr, free_fn) {}
   ~X509Certificate() = default;
 
-  template <class Builder>
+  template <class Builder = X509CertificateBuilder>
     requires std::is_same_v<Builder, X509CertificateBuilder>
   static auto init() -> Builder {
     return Builder();
@@ -185,8 +161,11 @@ class X509CertificateBuilder {
 private:
   X509 *cert{X509_new()};
 
+  friend X509Certificate;
+
+  X509CertificateBuilder() = default;
+
 public:
-  X509CertificateBuilder() = delete;
   X509CertificateBuilder(const X509CertificateBuilder &) = delete;
   X509CertificateBuilder(X509CertificateBuilder &&) noexcept = default;
   auto operator=(const X509CertificateBuilder &)
@@ -194,8 +173,7 @@ public:
   auto operator=(X509CertificateBuilder &&) noexcept
       -> X509CertificateBuilder & = default;
 
-  auto set_serial_number(const Asn1Integer &&integer)
-      -> X509CertificateBuilder {
+  auto set_serial_number(const Asn1Integer &&integer) -> X509CertificateBuilder {
     X509_set_serialNumber(cert, integer.as_ptr());
     return std::forward<X509CertificateBuilder>(*this);
   }
@@ -210,8 +188,8 @@ public:
     return std::forward<X509CertificateBuilder>(*this);
   }
 
-  auto set_extension(X509_EXTENSION *ex) -> X509CertificateBuilder {
-    X509_add_ext(cert, ex, -1);
+  auto set_extension(const X509Extension&& ex) -> X509CertificateBuilder {
+    X509_add_ext(cert, ex.as_ptr(), -1);
     return std::forward<X509CertificateBuilder>(*this);
   }
 
