@@ -7,7 +7,7 @@
 
 namespace openssl {
 
-enum class X509V3ExtensionNid {
+enum class X509V3ExtensionNid : std::uint32_t {
   SUBJECT_ALT_NAME = NID_subject_alt_name,
   BASIC_CONSTRAINTS = NID_basic_constraints,
   KEY_USAGE = NID_key_usage,

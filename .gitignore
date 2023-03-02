@@ -1,3 +1,4 @@
 .cache
 .vscode
 builddir
+.DS_store
