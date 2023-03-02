@@ -23,7 +23,7 @@ class Public {};
 class Rsa {};
 class EcKey {};
 
-template<class KeyType>
+template<typename KeyType>
 requires std::same_as<Private, KeyType> || std::same_as<Public, KeyType>
 class EVPPkey {
 private:
@@ -44,7 +44,7 @@ public:
 
   auto as_ptr() const noexcept -> EVP_PKEY* { return m_ssl_type.get(); }
 
-  template<class KeyAlgorithm>
+  template<typename KeyAlgorithm>
   requires std::same_as<Rsa, KeyAlgorithm> && std::same_as<KeyType, Private>
   static auto generate(const std::int32_t bits = 2048) -> Expected<EVPPkey<Private>> {
     auto evp = EVPPkey<Private>();
@@ -60,7 +60,7 @@ public:
     return {evp};
   }
 
-  template<class KeyAlgorithm>
+  template<typename KeyAlgorithm>
   requires std::same_as<EcKey, KeyAlgorithm> && std::same_as<KeyType, Private>
   static auto generate(const std::int32_t nid = NID_secp521r1) -> Expected<EVPPkey<Private>> {
     auto evp = EVPPkey<Private>();

@@ -1,13 +1,11 @@
 #pragma once
 
-#include <memory>
 #include <openssl/x509v3.h>
+#include <openssl/x509.h>
 
-#include "internal/ssl_interface.hpp"
-#include "openssl/x509.h"
+#include "asn1/asn1_octet_string.hpp"
 
 namespace openssl {
-
 
 enum class X509V3ExtensionNid {
   SUBJECT_ALT_NAME = NID_subject_alt_name,
@@ -73,6 +71,16 @@ public:
   ~X509Extension() = default;
 
   auto as_ptr() const noexcept -> X509_EXTENSION* { return m_ssl_type.get(); }
+
+  static auto from(const X509V3ExtensionNid&& nid, const std::string_view&& data) -> Expected<X509Extension> {
+    auto ext = X509Extension();
+    auto ext_ptr = ext.as_ptr();
+    auto octet = TRY(Asn1OctetString::from(std::move(data)));
+    if (X509_EXTENSION_create_by_NID(&ext_ptr, static_cast<int>(nid), 0, octet.as_ptr()) == nullptr) {
+      return Unexpected(SSLError(ErrorCode::ConversionError));
+    }
+    return {ext};
+  }
 };
 
 }

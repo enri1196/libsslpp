@@ -75,7 +75,7 @@ public:
   }
 };
 
-template<class T>
+template<typename T>
 using Expected = tl::expected<T, SSLError>;
 using Unexpected = tl::unexpected<SSLError>;
 
