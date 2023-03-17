@@ -1,14 +1,8 @@
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
-#include <memory>
-#include <string_view>
-
 #include <openssl/x509.h>
 
 #include "bio.hpp"
-#include "internal/ssl_interface.hpp"
 #include "x509/x509_certificate.hpp"
 
 namespace openssl {

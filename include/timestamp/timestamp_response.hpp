@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-#include <memory>
 #include <vector>
 
 #include <openssl/ts.h>

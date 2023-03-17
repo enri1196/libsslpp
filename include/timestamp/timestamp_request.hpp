@@ -1,16 +1,9 @@
 #pragma once
 
-#include <cstdint>
-#include <memory>
-#include <string_view>
-#include <utility>
-#include <vector>
-
 #include <openssl/safestack.h>
 #include <openssl/ts.h>
 
 #include "asn1/asn1_integer.hpp"
-#include "openssl/ossl_typ.h"
 
 namespace openssl {
 

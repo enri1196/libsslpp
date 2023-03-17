@@ -1,19 +1,9 @@
 #pragma once
 
 #include <concepts>
-#include <cstddef>
-#include <cstdint>
-#include <memory>
-
-#include <openssl/evp.h>
-#include <openssl/pem.h>
-#include <openssl/ec.h>
-#include <openssl/ssl.h>
 #include <vector>
 
 #include "bio.hpp"
-#include "internal/ssl_interface.hpp"
-#include "openssl/rsa.h"
 
 namespace openssl {
 

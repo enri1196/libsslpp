@@ -115,7 +115,6 @@ template <class B> struct conjunction<B> : B {};
 template <class B, class... Bs>
 struct conjunction<B, Bs...>
     : std::conditional<bool(B::value), conjunction<Bs...>, B>::type {};
-# 269 "expected.hpp"
 template <typename Fn, typename... Args,
 
           typename = enable_if_t<std::is_member_pointer<decay_t<Fn>>::value>,
@@ -150,7 +149,7 @@ using invoke_result = invoke_result_impl<F, void, Us...>;
 
 template <class F, class... Us>
 using invoke_result_t = typename invoke_result<F, Us...>::type;
-# 315 "expected.hpp"
+
 namespace swap_adl_tests {
 
 struct tag {};
@@ -515,7 +514,7 @@ struct expected_operations_base : expected_storage_base<T, E> {
         unexpected<E>(std::forward<Args>(args)...);
     this->m_has_val = false;
   }
-# 808 "expected.hpp"
+
   void assign(const expected_operations_base &rhs) noexcept {
     if (!this->m_has_val && rhs.m_has_val) {
       geterr().~unexpected<E>();
@@ -1175,7 +1174,6 @@ public:
     } else {
       auto tmp = std::move(err());
       err().~unexpected<E>();
-# 1668 "expected.hpp"
       ::new (valptr()) T(std::forward<U>(v));
       this->m_has_val = true;
     }

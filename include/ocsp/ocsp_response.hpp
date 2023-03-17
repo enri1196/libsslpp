@@ -1,13 +1,10 @@
 #pragma once
 
-#include <cstdint>
-#include <memory>
 #include <vector>
 
 #include <openssl/ocsp.h>
 
 #include "internal/ssl_interface.hpp"
-#include "openssl/ossl_typ.h"
 
 namespace openssl {
 

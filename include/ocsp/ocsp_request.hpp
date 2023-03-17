@@ -1,14 +1,9 @@
 #pragma once
 
-#include <cstdint>
-#include <memory>
-#include <vector>
-
 #include <openssl/ocsp.h>
+#include <openssl/evp.h>
 
 #include "evp_pkey.hpp"
-#include "internal/ssl_interface.hpp"
-#include "openssl/evp.h"
 #include "x509/x509_certificate.hpp"
 #include "x509/x509_name.hpp"
 

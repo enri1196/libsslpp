@@ -30,7 +30,7 @@ public:
     auto octet_string = Asn1OctetString();
     if (ASN1_OCTET_STRING_set(
         octet_string.as_ptr(),
-        (const unsigned char*)data.data(),
+        reinterpret_cast<const unsigned char*>(data.data()),
         data.length()
       ) <= 0) {
       return Unexpected(SSLError(ErrorCode::ConversionError));

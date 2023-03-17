@@ -10,19 +10,19 @@
 
 #include "expected.hpp"
 
-// #if defined _WIN32 || defined __CYGWIN__
-//   #ifdef BUILDING_LIBSSLPP
-//     #define LIBSSLPP_PUBLIC __declspec(dllexport)
-//   #else
-//     #define LIBSSLPP_PUBLIC __declspec(dllimport)
-//   #endif
-// #else
-//   #ifdef BUILDING_LIBSSLPP
-//     #define LIBSSLPP_PUBLIC __attribute__((visibility ("default")))
-//   #else
-//     #define LIBSSLPP_PUBLIC
-//   #endif
-// #endif
+#if defined _WIN32 || defined __CYGWIN__
+  #ifdef BUILDING_LIBSSLPP
+    #define LIBSSLPP_PUBLIC __declspec(dllexport)
+  #else
+    #define LIBSSLPP_PUBLIC __declspec(dllimport)
+  #endif
+#else
+  #ifdef BUILDING_LIBSSLPP
+    #define LIBSSLPP_PUBLIC __attribute__((visibility ("default")))
+  #else
+    #define LIBSSLPP_PUBLIC
+  #endif
+#endif
 
 namespace openssl {
 
@@ -33,10 +33,11 @@ enum class ErrorCode : std::uint8_t {
   ConversionError,
   IOError,
   KeyGen,
+  OutOfRange,
   ParseError,
 };
 
-static const auto code_to_string = [](ErrorCode c) -> std::string_view {
+static const auto err_code_to_string = [](ErrorCode c) -> std::string_view {
   switch (c) {
   case ErrorCode::AccesError:
     return "AccesError";
@@ -48,6 +49,8 @@ static const auto code_to_string = [](ErrorCode c) -> std::string_view {
     return "KeyGenError";
   case ErrorCode::ParseError:
     return "ParseError";
+  case ErrorCode::OutOfRange:
+    return "OutOfRange";
   // default:
   //   return "Unknown";
   }
@@ -70,7 +73,7 @@ public:
   }
 
   friend auto operator<<(std::ostream& s, const SSLError& e) -> std::ostream& {
-    s << "SSLError: " << code_to_string(e.get_code()) << ": " << e.get_what();
+    s << "SSLError: " << err_code_to_string(e.get_code()) << ": " << e.get_what();
     return s;
   }
 };
