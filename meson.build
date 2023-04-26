@@ -7,11 +7,11 @@ project(
     'cpp_std=c++20',
     'cpp_eh=none',
     'buildtype=debug', # release or debug
-    # 'b_lto=true',
-    # 'b_lto_mode=default',
-    # 'b_lto_threads=8',
-    # 'b_sanitize=undefined',
-    # 'b_lundef=false'
+    'b_lto=true',
+    'b_lto_mode=default',
+    'b_lto_threads=8',
+    'b_sanitize=address',
+    'b_lundef=false'
   ],
 )
 
