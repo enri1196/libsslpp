@@ -9,34 +9,33 @@ namespace openssl {
 
 class TSRequestBuilder;
 
-class TSRequest {
+class LIBSSLPP_PUBLIC TSRequest {
 private:
-  using SSLPtr = std::shared_ptr<TS_REQ>;
+  using FreeFn = decltype([](TS_REQ* ptr){TS_REQ_free(ptr);});
+  using SSLPtr = std::unique_ptr<TS_REQ>;
   SSLPtr m_ssl_type;
 
-  TSRequest() : m_ssl_type(TS_REQ_new(), TS_REQ_free) {}
+  TSRequest() : m_ssl_type(TS_REQ_new()) {}
 
 public:
-  TSRequest(const TSRequest &) = default;
+  TSRequest(const TSRequest &) = delete;
   TSRequest(TSRequest &&) noexcept = default;
-  auto operator=(const TSRequest &) -> TSRequest & = default;
+  auto operator=(const TSRequest &) -> TSRequest & = delete;
   auto operator=(TSRequest &&) noexcept -> TSRequest & = default;
-  explicit TSRequest(TS_REQ *ptr,
-                       std::function<void(TS_REQ *)> free_fn = TS_REQ_free)
-      : m_ssl_type(ptr, free_fn) {}
+  explicit TSRequest(TS_REQ *ptr) : m_ssl_type(ptr) {}
   ~TSRequest() = default;
 
   auto as_ptr() const noexcept -> TS_REQ* { return m_ssl_type.get(); }
 
   template <class Builder = TSRequestBuilder>
-    requires std::is_same_v<Builder, TSRequestBuilder>
+  requires std::is_same_v<Builder, TSRequestBuilder>
   static auto init() -> Builder {
     return Builder();
   }
 
   static auto from(const std::vector<std::uint8_t>&& bytes) -> Expected<TSRequest> {
     auto bytes_data = bytes.data();
-    auto req = d2i_TS_REQ(nullptr, &bytes_data, bytes.size());
+    auto req = d2i_TS_REQ(nullptr, &bytes_data, static_cast<long>(bytes.size()));
     if (req == nullptr) {
       return Unexpected(SSLError(ErrorCode::ParseError));
     }
@@ -55,7 +54,7 @@ public:
 
   auto nonce() const -> const Asn1Integer {
     auto nonce = TS_REQ_get_nonce(this->as_ptr());
-    return Asn1Integer(const_cast<ASN1_INTEGER*>(nonce), [](ASN1_INTEGER*){});
+    return Asn1Integer(const_cast<ASN1_INTEGER*>(nonce));
   }
 
   auto policy_id() const -> ASN1_OBJECT* {

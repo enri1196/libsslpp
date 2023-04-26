@@ -8,7 +8,7 @@
 
 namespace openssl {
 
-class TSResponse {
+class LIBSSLPP_PUBLIC TSResponse {
 private:
   using SSLPtr = std::shared_ptr<TS_RESP>;
   SSLPtr m_ssl_type;

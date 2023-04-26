@@ -11,38 +11,37 @@ namespace openssl::ocsp {
 
 class OCSPRequestBuilder;
 
-class OCSPRequest {
+class LIBSSLPP_PUBLIC OCSPRequest {
 private:
-  using SSLPtr = std::shared_ptr<OCSP_REQUEST>;
+  using FreeFn = decltype([](OCSP_REQUEST* ptr){OCSP_REQUEST_free(ptr);});
+  using SSLPtr = std::unique_ptr<OCSP_REQUEST, FreeFn>;
   SSLPtr m_ssl_type;
 
-  OCSPRequest() : m_ssl_type(OCSP_REQUEST_new(), OCSP_REQUEST_free) {}
+  OCSPRequest() : m_ssl_type(OCSP_REQUEST_new()) {}
 
 public:
-  OCSPRequest(const OCSPRequest &) = default;
+  OCSPRequest(const OCSPRequest &) = delete;
   OCSPRequest(OCSPRequest &&) noexcept = default;
-  auto operator=(const OCSPRequest &) -> OCSPRequest & = default;
+  auto operator=(const OCSPRequest &) -> OCSPRequest & = delete;
   auto operator=(OCSPRequest &&) noexcept -> OCSPRequest & = default;
-  explicit OCSPRequest(OCSP_REQUEST *ptr,
-                       std::function<void(OCSP_REQUEST *)> free_fn = OCSP_REQUEST_free)
-      : m_ssl_type(ptr, free_fn) {}
+  explicit OCSPRequest(OCSP_REQUEST *ptr) : m_ssl_type(ptr) {}
   ~OCSPRequest() = default;
 
   auto as_ptr() const noexcept -> OCSP_REQUEST* { return m_ssl_type.get(); }
 
   template <class Builder>
-    requires std::is_same_v<Builder, OCSPRequestBuilder>
+  requires std::is_same_v<Builder, OCSPRequestBuilder>
   static auto init() -> Builder {
     return Builder();
   }
 
   static auto from(const std::vector<std::uint8_t>&& bytes) -> Expected<OCSPRequest> {
     auto bytes_data = bytes.data();
-    auto req = d2i_OCSP_REQUEST(nullptr, &bytes_data, bytes.size());
+    auto req = d2i_OCSP_REQUEST(nullptr, &bytes_data, static_cast<long>(bytes.size()));
     if (req == nullptr) {
       return Unexpected(SSLError(ErrorCode::ParseError));
     }
-    return OCSPRequest(req);
+    return {OCSPRequest(req)};
   }
 };
 
