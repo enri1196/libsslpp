@@ -9,7 +9,7 @@ namespace openssl {
 
 class X509NameBuilder;
 
-class X509Name {
+class LIBSSLPP_PUBLIC X509Name {
 private:
   using SSLPtr = std::shared_ptr<X509_NAME>;
   SSLPtr m_ssl_type;
@@ -17,19 +17,20 @@ private:
   X509Name() : m_ssl_type(X509_NAME_new(), X509_NAME_free) {}
 
 public:
-  X509Name(const X509Name &) = default;
+  X509Name(const X509Name &) = delete;
   X509Name(X509Name &&) noexcept = default;
-  auto operator=(const X509Name &) -> X509Name & = default;
+  auto operator=(const X509Name &) -> X509Name & = delete;
   auto operator=(X509Name &&) noexcept -> X509Name & = default;
-  explicit X509Name(X509_NAME *ptr,
-                    std::function<void(X509_NAME *)> free_fn = X509_NAME_free)
-      : m_ssl_type(ptr, free_fn) {}
+  explicit X509Name(
+    X509_NAME *ptr,
+    std::function<void(X509_NAME*)> free_fn = X509_NAME_free
+    ) : m_ssl_type(ptr, free_fn) {}
   ~X509Name() = default;
 
   auto as_ptr() const noexcept -> X509_NAME * { return m_ssl_type.get(); }
 
   template <class Builder = X509NameBuilder>
-    requires std::is_same_v<Builder, X509NameBuilder>
+  requires std::is_same_v<Builder, X509NameBuilder>
   static auto init() -> Builder {
     return Builder();
   }

@@ -1,5 +1,8 @@
 #pragma once
 
+#include "openssl/pem.h"
+
+#include "bio.hpp"
 #include "asn1/asn1_integer.hpp"
 #include "asn1/asn1_time.hpp"
 #include "evp_pkey.hpp"
@@ -10,7 +13,7 @@ namespace openssl {
 
 class X509CertificateBuilder;
 
-class X509Certificate {
+class LIBSSLPP_PUBLIC X509Certificate {
 private:
   using SSLPtr = std::shared_ptr<X509>;
   SSLPtr m_ssl_type;
@@ -87,20 +90,20 @@ public:
     return bio.get_mem_ptr();
   }
 
-  auto not_before() const -> Expected<const Asn1Time> {
-    auto time = X509_get0_notBefore(this->as_ptr());
+  auto not_before() const -> Expected<Asn1Time> {
+    auto time = X509_get_notBefore(this->as_ptr());
     if (time == nullptr) {
       return Unexpected(SSLError(ErrorCode::AccesError));
     }
-    return {Asn1Time(const_cast<ASN1_TIME *>(time), [](ASN1_TIME*){})};
+    return {Asn1Time(time, [](ASN1_TIME*){})};
   }
 
-  auto not_after() const -> Expected<const Asn1Time> {
-    auto time = X509_get0_notAfter(this->as_ptr());
+  auto not_after() const -> Expected<Asn1Time> {
+    auto time = X509_get_notAfter(this->as_ptr());
     if (time == nullptr) {
       return Unexpected(SSLError(ErrorCode::AccesError));
     }
-    return {Asn1Time(const_cast<ASN1_TIME *>(time), [](ASN1_TIME*){})};
+    return {Asn1Time(time, [](ASN1_TIME*){})};
   }
 
   auto serial_number() const -> Expected<Asn1Integer> {
@@ -116,7 +119,7 @@ public:
     if (pub_key == nullptr) {
       return Unexpected(SSLError(ErrorCode::AccesError));
     }
-    return {EVPPkey<Public>(pub_key, [](EVP_PKEY*){})};
+    return {EVPPkey<Public>(pub_key)};
   }
 
   auto issuer_name() const -> Expected<X509Name> {

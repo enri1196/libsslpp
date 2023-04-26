@@ -53,7 +53,7 @@ enum class ExtendedKeyUsage : std::uint32_t {
   ABSENT = UINT32_MAX
 };
 
-class X509Extension {
+class LIBSSLPP_PUBLIC X509Extension {
 private:
   using SSLPtr = std::shared_ptr<X509_EXTENSION>;
   SSLPtr m_ssl_type;
