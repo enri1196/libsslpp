@@ -7,24 +7,39 @@
 
 namespace openssl {
 
-class X509Store {
+class LIBSSLPP_PUBLIC X509Store {
 private:
-  using SSLPtr = std::shared_ptr<X509_STORE>;
-  SSLPtr m_ssl_type;
+  X509_STORE* m_ssl_type;
 
-  X509Store() : m_ssl_type(X509_STORE_new(), X509_STORE_free) {}
+  X509Store() : m_ssl_type(X509_STORE_new()) {}
 
 public:
-  X509Store(const X509Store &) = default;
-  X509Store(X509Store &&) noexcept = default;
-  auto operator=(const X509Store &) -> X509Store & = default;
-  auto operator=(X509Store &&) noexcept -> X509Store & = default;
-  explicit X509Store(X509_STORE *ptr,
-                    std::function<void(X509_STORE *)> free_fn = X509_STORE_free)
-      : m_ssl_type(ptr, free_fn) {}
-  ~X509Store() = default;
+  X509Store(const X509Store& store) {
+    X509_STORE_up_ref(store.as_ptr());
+    m_ssl_type = store.m_ssl_type;
+  }
+  X509Store(X509Store&& store) noexcept {
+    m_ssl_type = store.m_ssl_type;
+    store = nullptr;
+  }
+  auto operator=(const X509Store& store) -> X509Store& {
+    if (this != &store) {
+      X509_STORE_up_ref(store.as_ptr());
+      m_ssl_type = store.m_ssl_type;
+    }
+    return *this;
+  }
+  auto operator=(X509Store&& store) noexcept -> X509Store& {
+    if (this != &store) {
+      m_ssl_type = store.m_ssl_type;
+      store.m_ssl_type = nullptr;
+    }
+    return *this;
+  }
+  X509Store(X509_STORE* store) : m_ssl_type(store) {}
+  ~X509Store() { X509_STORE_free(m_ssl_type); }
 
-  auto as_ptr() const noexcept -> X509_STORE * { return m_ssl_type.get(); }
+  auto as_ptr() const noexcept -> X509_STORE * { return m_ssl_type; }
 
   static auto init() -> X509Store {
     return X509Store();
@@ -39,7 +54,6 @@ public:
     if (X509_STORE_add_cert(this->as_ptr(), cert.as_ptr()) <= 0) {
       return Unexpected(SSLError(ErrorCode::AccesError));
     }
-    X509_up_ref(cert.as_ptr());
     return {};
   }
 };
