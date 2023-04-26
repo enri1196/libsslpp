@@ -11,28 +11,26 @@ namespace openssl {
 
 class Asn1Integer;
 
-class BigNum {
+class LIBSSLPP_PUBLIC BigNum {
 private:
-  using SSLPtr = std::shared_ptr<BIGNUM>;
-  SSLPtr m_ssl_type;
+  using FreeFn = decltype([](BIGNUM* ptr){BN_free(ptr);});
+  using SSLPtr = std::unique_ptr<BIGNUM, FreeFn>;
+  BIGNUM* m_ssl_type;
 
   BigNum();
 
 public:
-  BigNum(const BigNum &);
+  BigNum(const BigNum &) = delete;
   BigNum(BigNum &&) noexcept;
-  auto operator=(const BigNum &) -> BigNum&;
+  auto operator=(const BigNum &) -> BigNum& = delete;
   auto operator=(BigNum &&) noexcept -> BigNum&;
-  explicit BigNum(BIGNUM *ptr,
-                  std::function<void(BIGNUM *)> free_fn = BN_free);
+  explicit BigNum(BIGNUM *ptr);
   ~BigNum();
 
   auto operator<=>(const BigNum& other) noexcept -> std::strong_ordering;
 
   auto as_ptr() const noexcept -> BIGNUM*;
 
-  // template<typename Asn1Int>
-  // requires std::same_as<Asn1Integer, Asn1Int> && HasAsPtr<Asn1Int>
   static auto from(const Asn1Integer&& asn1_int) -> Expected<BigNum>;
 
   auto to_string() const -> Expected<std::string_view>;
