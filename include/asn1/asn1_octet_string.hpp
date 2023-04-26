@@ -16,7 +16,7 @@ private:
 
 public:
   Asn1OctetString(Asn1OctetString &&) noexcept = default;
-  Asn1OctetString(const Asn1OctetString &) = default;
+  Asn1OctetString(const Asn1OctetString &) = delete;
   auto operator=(Asn1OctetString &&) noexcept -> Asn1OctetString & = default;
   auto operator=(const Asn1OctetString &) -> Asn1OctetString & = default;
   explicit Asn1OctetString(ASN1_OCTET_STRING *ptr,
@@ -27,15 +27,15 @@ public:
   auto as_ptr() const noexcept -> ASN1_OCTET_STRING* { return m_ssl_type.get(); }
 
   static auto from(const std::string_view&& data) -> Expected<Asn1OctetString> {
-    auto octet_string = Asn1OctetString();
+    auto octet_string = ASN1_OCTET_STRING_new();
     if (ASN1_OCTET_STRING_set(
-        octet_string.as_ptr(),
+        octet_string,
         reinterpret_cast<const unsigned char*>(data.data()),
-        data.length()
+        static_cast<int>(data.length())
       ) <= 0) {
       return Unexpected(SSLError(ErrorCode::ConversionError));
     }
-    return {octet_string};
+    return {Asn1OctetString(octet_string)};
   }
 };
 

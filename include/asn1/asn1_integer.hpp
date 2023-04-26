@@ -15,11 +15,11 @@ private:
   using SSLPtr = std::shared_ptr<ASN1_INTEGER>;
   SSLPtr m_ssl_type;
 
-  Asn1Integer() : m_ssl_type(ASN1_INTEGER_new(), ASN1_INTEGER_free) {}
+  Asn1Integer();
 
 public:
   Asn1Integer(Asn1Integer &&) noexcept;
-  Asn1Integer(const Asn1Integer &);
+  Asn1Integer(const Asn1Integer &) = delete;
   auto operator=(Asn1Integer &&) noexcept -> Asn1Integer &;
   auto operator=(const Asn1Integer &) -> Asn1Integer &;
   explicit Asn1Integer(ASN1_INTEGER *ptr,
