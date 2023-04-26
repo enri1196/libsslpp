@@ -1,15 +1,11 @@
 #include "big_num.hpp"
 
 namespace openssl {
-  BigNum::BigNum() : m_ssl_type(BN_new(), BN_free) {}
+  BigNum::BigNum() : m_ssl_type(BN_new()) {}
 
-  BigNum::BigNum(const BigNum &) = default;
   BigNum::BigNum(BigNum &&) noexcept = default;
-  auto BigNum::operator=(const BigNum &) -> BigNum& = default;
   auto BigNum::operator=(BigNum &&) noexcept -> BigNum& = default;
-  BigNum::BigNum(BIGNUM *ptr,
-                  std::function<void(BIGNUM *)> free_fn)
-      : m_ssl_type(ptr, free_fn) {}
+  BigNum::BigNum(BIGNUM *ptr) : m_ssl_type(ptr) {}
   BigNum::~BigNum() = default;
 
   auto BigNum::operator<=>(const BigNum& other) noexcept -> std::strong_ordering {
@@ -26,11 +22,9 @@ namespace openssl {
   }
 
   auto BigNum::as_ptr() const noexcept -> BIGNUM* {
-    return m_ssl_type.get();
+    return m_ssl_type;
   }
 
-  // template<typename Asn1Int>
-  // requires std::same_as<Asn1Integer, Asn1Int> && HasAsPtr<Asn1Int>
   auto BigNum::from(const Asn1Integer&& asn1_int) -> Expected<BigNum> {
     auto bn = ASN1_INTEGER_to_BN(asn1_int.as_ptr(), nullptr);
     if (bn == nullptr) {
