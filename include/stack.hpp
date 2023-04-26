@@ -7,7 +7,7 @@
 namespace openssl {
 
 template <typename T>
-class Stack {
+class LIBSSLPP_PUBLIC Stack {
 private:
   std::vector<std::optional<T>> stack_data;
 
