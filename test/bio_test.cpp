@@ -10,23 +10,20 @@ private:
 public:
     SharedBIO(openssl::SSLBio in_bio) : bio(in_bio) {}
 
-    auto print_info() {
-        std::cout << bio.get_mem_ptr().value() << "\n";
+    auto get_str() -> std::string_view {
+        return bio.get_mem_ptr().value();
     }
 };
 
 TEST(SSLBio, shared_ref) {
     auto shared_bio = openssl::SSLBio::init();
-    shared_bio.write_mem("/Users/enrico/Programming/libsslpp/test/test_files/google.cer");
+    shared_bio.write_mem("Some random data to write");
 
     auto sb1 = SharedBIO(shared_bio);
     auto sb2 = SharedBIO(shared_bio);
     auto sb3 = SharedBIO(shared_bio);
 
-    std::cout << shared_bio.get_mem_ptr().value() << "\n";
-    sb1.print_info();
-    sb2.print_info();
-    sb3.print_info();
-
-    SUCCEED();
+    EXPECT_EQ(sb1.get_str(), "Some random data to write");
+    EXPECT_EQ(sb2.get_str(), "Some random data to write");
+    EXPECT_EQ(sb3.get_str(), "Some random data to write");
 }
