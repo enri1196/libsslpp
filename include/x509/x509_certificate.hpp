@@ -6,6 +6,7 @@
 #include "asn1/asn1_integer.hpp"
 #include "asn1/asn1_time.hpp"
 #include "evp_pkey.hpp"
+#include "openssl/x509.h"
 #include "x509_name.hpp"
 #include "x509_extension.hpp"
 
@@ -15,41 +16,26 @@ class X509CertificateBuilder;
 
 class LIBSSLPP_PUBLIC X509Certificate {
 private:
-  using SSLPtr = std::shared_ptr<X509>;
-  SSLPtr m_ssl_type;
+  X509* m_ssl_type;
 
-  X509Certificate() : m_ssl_type(X509_new(), X509_free) {}
+  X509Certificate() : m_ssl_type(X509_new()) {}
 
 public:
-  X509Certificate(X509Certificate &&) noexcept = default;
-  X509Certificate(const X509Certificate &) = default;
-  auto operator=(X509Certificate &&) noexcept -> X509Certificate & = default;
-  auto operator=(const X509Certificate &) -> X509Certificate & = default;
-  explicit X509Certificate(X509 *ptr,
-                           std::function<void(X509 *)> free_fn = X509_free)
-      : m_ssl_type(ptr, free_fn) {}
-  ~X509Certificate() = default;
+  X509Certificate(X509Certificate &&x509) noexcept;
+  X509Certificate(const X509Certificate &x509);
+  auto operator=(X509Certificate &&x509) noexcept -> X509Certificate &;
+  auto operator=(const X509Certificate &x509) -> X509Certificate &;
+  explicit X509Certificate(X509 *ptr) : m_ssl_type(ptr) {}
+  ~X509Certificate();
 
   template <class Builder = X509CertificateBuilder>
-    requires std::is_same_v<Builder, X509CertificateBuilder>
-  static auto init() -> Builder {
-    return Builder();
-  }
+  requires std::is_same_v<Builder, X509CertificateBuilder>
+  static auto init() -> Builder;
 
-  auto as_ptr() const noexcept -> X509 * { return m_ssl_type.get(); }
+  auto as_ptr() const noexcept -> X509 *;
 
   static auto from(const std::vector<std::uint8_t> &&cert_bytes)
-      -> Expected<X509Certificate> {
-    auto bio_bytes = SSLBio::init();
-    BIO_write(bio_bytes.as_ptr(), cert_bytes.data(),
-              static_cast<int>(cert_bytes.size()));
-    auto *cert =
-        PEM_read_bio_X509(bio_bytes.as_ptr(), nullptr, nullptr, nullptr);
-    if (cert == nullptr) {
-      return Unexpected(SSLError(ErrorCode::ParseError));
-    }
-    return {X509Certificate(cert)};
-  }
+      -> Expected<X509Certificate>;
 
   static auto from(const std::string_view &&cert_str)
       -> Expected<X509Certificate> {
