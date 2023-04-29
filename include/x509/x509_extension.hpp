@@ -62,9 +62,9 @@ private:
 
 public:
   X509Extension(X509Extension &&) noexcept = default;
-  X509Extension(const X509Extension &) = default;
+  X509Extension(const X509Extension &) = delete;
   auto operator=(X509Extension &&) noexcept -> X509Extension & = default;
-  auto operator=(const X509Extension &) -> X509Extension & = default;
+  auto operator=(const X509Extension &) -> X509Extension & = delete;
   explicit X509Extension(X509_EXTENSION *ptr,
                       std::function<void(X509_EXTENSION *)> free_fn = X509_EXTENSION_free)
       : m_ssl_type(ptr, free_fn) {}
@@ -73,13 +73,12 @@ public:
   auto as_ptr() const noexcept -> X509_EXTENSION* { return m_ssl_type.get(); }
 
   static auto from(const X509V3ExtensionNid&& nid, const std::string_view&& data) -> Expected<X509Extension> {
-    auto ext = X509Extension();
-    auto ext_ptr = ext.as_ptr();
+    auto ext = X509_EXTENSION_new();
     auto octet = TRY(Asn1OctetString::from(std::move(data)));
-    if (X509_EXTENSION_create_by_NID(&ext_ptr, static_cast<int>(nid), 0, octet.as_ptr()) == nullptr) {
+    if (X509_EXTENSION_create_by_NID(&ext, static_cast<int>(nid), 0, octet.as_ptr()) == nullptr) {
       return Unexpected(SSLError(ErrorCode::ConversionError));
     }
-    return {ext};
+    return {X509Extension(ext)};
   }
 };
 
