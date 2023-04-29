@@ -33,6 +33,8 @@ public:
   auto get_mem_ptr() const -> Expected<std::string_view>;
 
   auto write_mem(const std::string_view&& buf) -> void;
+
+  auto write_mem(const std::vector<std::uint8_t> &&buf) -> void;
 };  // class SSLBio
 
 } // namespace openssl
