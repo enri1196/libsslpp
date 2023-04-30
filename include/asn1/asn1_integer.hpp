@@ -19,7 +19,7 @@ private:
 
 public:
   Asn1Integer(Asn1Integer &&) noexcept;
-  Asn1Integer(const Asn1Integer &) = delete;
+  Asn1Integer(const Asn1Integer &);
   auto operator=(Asn1Integer &&) noexcept -> Asn1Integer &;
   auto operator=(const Asn1Integer &) -> Asn1Integer &;
   explicit Asn1Integer(ASN1_INTEGER *ptr,
@@ -27,6 +27,8 @@ public:
   ~Asn1Integer();
 
   auto as_ptr() const noexcept -> ASN1_INTEGER*;
+
+  auto clone() const -> Asn1Integer;
 
   static auto from(const BigNum&& bni) -> Expected<Asn1Integer>;
 
