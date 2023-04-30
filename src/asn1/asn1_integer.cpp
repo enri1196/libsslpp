@@ -5,7 +5,9 @@
 namespace openssl {
 Asn1Integer::Asn1Integer() : m_ssl_type(ASN1_INTEGER_new(), ASN1_INTEGER_free) {}
 Asn1Integer::Asn1Integer(Asn1Integer &&) noexcept = default;
+Asn1Integer::Asn1Integer(const Asn1Integer &) = default;
 auto Asn1Integer::operator=(Asn1Integer &&) noexcept -> Asn1Integer & = default;
+auto Asn1Integer::operator=(const Asn1Integer &) -> Asn1Integer & = default;
 Asn1Integer::Asn1Integer(ASN1_INTEGER *ptr,
                          std::function<void(ASN1_INTEGER *)> free_fn)
     : m_ssl_type(ptr, free_fn) {}
@@ -13,6 +15,10 @@ Asn1Integer::~Asn1Integer() = default;
 
 auto Asn1Integer::as_ptr() const noexcept -> ASN1_INTEGER * {
   return m_ssl_type.get();
+}
+
+auto Asn1Integer::clone() const -> Asn1Integer {
+  return Asn1Integer(ASN1_INTEGER_dup(this->as_ptr()));
 }
 
 auto Asn1Integer::from(const BigNum &&bni) -> Expected<Asn1Integer> {
