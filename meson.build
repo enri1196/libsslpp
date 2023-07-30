@@ -1,5 +1,5 @@
 project(
-  'libsslpp',
+  'sslpp',
   'cpp',
   version : '0.1',
   default_options : [
@@ -9,9 +9,7 @@ project(
     'buildtype=debug', # release or debug
     'b_lto=true',
     'b_lto_mode=default',
-    'b_lto_threads=8',
-    'b_sanitize=address',
-    'b_lundef=false'
+    'b_lto_threads=8'
   ],
 )
 
@@ -34,27 +32,27 @@ deps = [ ssl ]
 
 install_headers(inc_files, subdir : 'sslpp')
 
-project_lib = shared_library(
+lib_sslpp = static_library(
   meson.project_name(),
   include_directories : inc_dir,
   sources : src_files,
   install : true,
   cpp_args : lib_args,
   dependencies : deps,
-  gnu_symbol_visibility : 'hidden',
+  # gnu_symbol_visibility : 'hidden',
 )
 
 # Make this library usable as a Meson subproject.
 libsslpp_dep = declare_dependency(
   include_directories : inc_dir,
-  link_with : project_lib
+  link_with : lib_sslpp
 )
 
 test_exe = executable(
   'libsslpp_test',
   test_files,
   include_directories : inc_dir,
-  link_with : project_lib,
+  link_with : lib_sslpp,
   dependencies : [test_dep, ssl]
 )
 test('libsslpp', test_exe)
@@ -67,5 +65,5 @@ pkg_mod.generate(
   filebase : meson.project_name(),
   description : 'project_description',
   subdirs : meson.project_name(),
-  libraries : project_lib,
+  libraries : lib_sslpp,
 )

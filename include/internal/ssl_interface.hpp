@@ -33,6 +33,7 @@ enum class ErrorCode : std::uint8_t {
   ConversionError,
   IOError,
   KeyGen,
+  MemoryError,
   OutOfRange,
   ParseError,
 };
@@ -51,8 +52,8 @@ static const auto err_code_to_string = [](ErrorCode c) -> std::string_view {
     return "ParseError";
   case ErrorCode::OutOfRange:
     return "OutOfRange";
-  // default:
-  //   return "Unknown";
+  case ErrorCode::MemoryError:
+    return "MemoryError";
   }
 };
 

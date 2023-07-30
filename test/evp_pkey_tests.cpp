@@ -1,51 +1,40 @@
-#include <cstdint>
-#include <iostream>
-#include <string_view>
-#include <vector>
-
 #include "gtest/gtest.h"
 
-#include "evp_pkey.hpp"
+#include "evp_pkey/base_pkey.hpp"
+#include "evp_pkey/ec_key.hpp"
+#include "evp_pkey/rsa_key.hpp"
 
 TEST(EVPPkey, generate_rsa) {
-  const auto rsa = openssl::EVPPkey<openssl::Private>::generate<openssl::Rsa>();
-  if (!rsa.has_value()) {
-    std::cout << rsa.error() << "\n";
-    FAIL();
-  }
-  std::cout << rsa->to_string().value() << "\n";
-  EXPECT_EQ(rsa.has_value(), true);
+  using namespace openssl::key;
+  const std::unique_ptr<BasePKey<Private>> rsa = std::make_unique<RsaKey>(RsaKeyBits::RSA_4096);
+
+  std::cout << rsa->to_string() << "\n";
+  EXPECT_TRUE(rsa != nullptr);
 }
 
-TEST(EVPPkey, generate_eckey) {
-  const auto ec_key = openssl::EVPPkey<openssl::Private>::generate<openssl::EcKey>();
-  if (!ec_key.has_value()) {
-    std::cout << ec_key.error() << "\n";
-    FAIL();
-  }
-  std::cout << ec_key->to_string().value() << "\n";
-  EXPECT_EQ(ec_key.has_value(), true);
+TEST(EVPPkey, generate_ec) {
+  using namespace openssl::key;
+  const std::unique_ptr<BasePKey<Private>> eckey = std::make_unique<EcKey>(EcKeyNid::SECP_521R1);
+
+  std::cout << eckey->to_string() << "\n";
+  EXPECT_TRUE(eckey != nullptr);
 }
 
 TEST(EVPPkey, get_public_key) {
-  const auto ec_key = openssl::EVPPkey<openssl::Private>::generate<openssl::EcKey>();
-  if (!ec_key.has_value()) {
-    std::cout << ec_key.error() << "\n";
-    FAIL();
-  }
-  const auto pub_key = ec_key->get_public();
-  const auto str = pub_key.to_string().value();
+  using namespace openssl::key;
+  const std::unique_ptr<BasePKey<Private>> rsa = std::make_unique<RsaKey>(RsaKeyBits::RSA_4096);
+
+  const auto pub_key = rsa->get_public();
+  const auto str = pub_key->to_string();
   std::cout << str << "\n";
-  EXPECT_EQ(ec_key.has_value() && !str.empty(), true);
+  EXPECT_EQ(pub_key != nullptr && !str.empty(), true);
 }
 
 TEST(EVPPkey, sign_data) {
-  const auto ec_key = openssl::EVPPkey<openssl::Private>::generate<openssl::EcKey>();
-  if (!ec_key.has_value()) {
-    std::cout << ec_key.error() << "\n";
-    FAIL();
-  }
-  std::vector<std::uint8_t> bytes{1,5,3,2,5,7,8,5,4,3,2,5,7,8};
-  auto sig = ec_key->sign(std::move(bytes));
+  using namespace openssl::key;
+  const std::unique_ptr<BasePKey<Private>> ec_key = std::make_unique<EcKey>(EcKeyNid::SECP_521R1);
+
+  std::vector<std::uint8_t> data{1,5,3,2,5,7,8,5,4,3,2,5,7,8};
+  auto sig = ec_key->sign(data);
   EXPECT_EQ(!sig.empty(), true);
 }
