@@ -26,11 +26,14 @@ auto SSLBio::open_file(const std::filesystem::path &&path) -> Expected<SSLBio> {
 
 auto SSLBio::as_ptr() const noexcept -> BIO * { return m_ssl_type; }
 
-auto SSLBio::get_mem_ptr() const -> std::string {
+auto SSLBio::get_mem_ptr() const -> Expected<std::string> {
   BUF_MEM *bptr = nullptr;
   BIO_get_mem_ptr(this->as_ptr(), &bptr);
-  std::string data(bptr->data, bptr->length);
-  return data;
+  BIO_set_close(this->as_ptr(), BIO_NOCLOSE);
+  if (bptr == nullptr) {
+    return Unexpected(SSLError(ErrorCode::IOError));
+  }
+  return {std::string(bptr->data, bptr->length)};
 }
 
 auto SSLBio::write_mem(std::string_view buf) -> Expected<void> {
