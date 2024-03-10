@@ -1,6 +1,6 @@
 # Libsslpp
-## High level bindings to openssl/libressl
+## High level bindings to OpenSSL/LibreSSL
 
 ```
-meson setup builddir && meson compile -C builddir
+meson setup build && meson compile -C build
 ```

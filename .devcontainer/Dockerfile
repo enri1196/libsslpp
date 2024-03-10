@@ -1,4 +1,4 @@
-FROM fedora:37
+FROM fedora:41
 
 RUN dnf install -y clang clang-tools-extra meson wget llvm git unzip
 
