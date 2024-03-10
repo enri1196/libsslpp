@@ -1,16 +1,18 @@
-#pragma once
+module;
 
 #include <memory>
 #include <span>
 
 #include <openssl/ts.h>
 
+export module tsp_resp;
+
 namespace openssl::ts {
 
 static void tresp_own_free(TS_RESP *x) { TS_RESP_free(x); }
 static void tresp_ref_free(TS_RESP *x) {}
 
-class TSResponse {
+export class TSResponse {
 private:
   std::shared_ptr<TS_RESP> m_ssl_type;
 

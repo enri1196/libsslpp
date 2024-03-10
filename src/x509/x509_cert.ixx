@@ -1,8 +1,9 @@
-#pragma once
+module;
 
 #include <cstdint>
 #include <memory>
 #include <optional>
+#include <print>
 #include <span>
 #include <stdexcept>
 #include <string_view>
@@ -13,20 +14,28 @@
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 
-#include "../asn1/asn1_integer.hpp"
-#include "../asn1/asn1_time.hpp"
-#include "../bio.hpp"
-#include "../evp_pkey.hpp"
-#include "extensions/extended_key_usage.hpp"
-#include "extensions/key_usage.hpp"
-#include "x509_name.hpp"
+// #include "../asn1/asn1_integer.hpp"
+// #include "../asn1/asn1_time.hpp"
+// #include "../bio.hpp"
+// #include "../evp_pkey.hpp"
+// #include "extensions/extended_key_usage.hpp"
+// #include "extensions/key_usage.hpp"
+// #include "x509_name.hpp"
+
+export module x509_cert;
+
+import asn1;
+import bio;
+import x509_name;
+import ext;
+import evp;
 
 namespace openssl::x509 {
 
 static void x509_own_free(X509 *x) { X509_free(x); }
 static void x509_ref_free(X509 *x) {}
 
-class X509Certificate {
+export class X509Certificate {
 private:
   std::shared_ptr<X509> m_ssl_type;
 
@@ -106,11 +115,17 @@ public:
     return X509_get_ext_count(this->as_ptr());
   }
 
+  auto extensions() const {
+    auto st = X509_get0_extensions(this->as_ptr());
+  }
+
   auto key_usage() const -> std::optional<KeyUsage> {
+    std::println("{}", X509_get_key_usage(this->as_ptr()));
     return KeyUsage::from(X509_get_key_usage(this->as_ptr()));
   }
 
   auto extended_key_usage() const -> std::optional<ExtendedKeyUsage> {
+    std::println("{}", X509_get_extended_key_usage(this->as_ptr()));
     return ExtendedKeyUsage::from(X509_get_extended_key_usage(this->as_ptr()));
   }
 };

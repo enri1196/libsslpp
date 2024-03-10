@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <memory>
 #include <openssl/ossl_typ.h>
@@ -7,12 +7,14 @@
 
 #include <openssl/asn1.h>
 
+export module octet_string;
+
 namespace openssl::asn1 {
 
 static void ao_own_free(ASN1_OCTET_STRING *x) { ASN1_OCTET_STRING_free(x); }
 static void ao_ref_free(ASN1_OCTET_STRING *x) {}
 
-class Asn1OctetString {
+export class Asn1OctetString {
 private:
   std::shared_ptr<ASN1_OCTET_STRING> m_ssl_type;
 

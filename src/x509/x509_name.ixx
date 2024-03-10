@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <memory>
 #include <string>
@@ -6,7 +6,11 @@
 
 #include <openssl/x509.h>
 
-#include "../bio.hpp"
+// #include "../bio.hpp"
+
+export module x509_name;
+
+import bio;
 
 namespace openssl::x509 {
 
@@ -15,7 +19,7 @@ static void xname_ref_free(X509_NAME *x) {}
 
 class X509NameBuilder;
 
-class X509Name {
+export class X509Name {
 private:
   std::shared_ptr<X509_NAME> m_ssl_type;
 

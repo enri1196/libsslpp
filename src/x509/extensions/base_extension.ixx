@@ -1,10 +1,12 @@
-#pragma once
+module;
 
 #include <string_view>
 
+export module base_ext;
+
 namespace openssl::x509 {
 
-class BaseX509Ext {
+export class BaseX509Ext {
 public:
   virtual ~BaseX509Ext() = default;
 

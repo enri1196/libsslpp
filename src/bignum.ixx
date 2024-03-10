@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <memory>
 #include <string>
@@ -6,12 +6,14 @@
 #include <openssl/bn.h>
 #include <openssl/ossl_typ.h>
 
+export module bn;
+
 namespace openssl::bn {
 
 static void bn_own_free(BIGNUM *x) { BN_free(x); }
 static void bn_ref_free(BIGNUM *x) {}
 
-class BigNum {
+export class BigNum {
 private:
   std::shared_ptr<BIGNUM> m_ssl_type;
 

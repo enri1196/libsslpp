@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <memory>
 #include <span>
@@ -6,12 +6,14 @@
 
 #include <openssl/x509.h>
 
+export module x509;
+
 namespace openssl::x509 {
 
 static void xreq_own_free(X509_REQ *x) { X509_REQ_free(x); }
 static void xreq_ref_free(X509_REQ *x) {}
 
-class X509Request {
+export class X509Request {
 private:
   std::shared_ptr<X509_REQ> m_ssl_type;
 

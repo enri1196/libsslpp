@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <filesystem>
 #include <memory>
@@ -10,12 +10,14 @@
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
 
+export module bio;
+
 namespace openssl::bio {
 
 static void bio_own_free(BIO *x) { BIO_free_all(x); }
 static void bio_ref_free(BIO *x) {}
 
-class SSLBio {
+export class SSLBio {
 private:
   std::shared_ptr<BIO> m_ssl_type;
 

@@ -1,4 +1,4 @@
-#pragma once
+moudle;
 
 #include <memory>
 #include <span>
@@ -6,9 +6,14 @@
 
 #include <openssl/ocsp.h>
 
-#include "../evp_pkey.hpp"
-#include "../x509/x509.hpp"
-#include "../x509/x509_name.hpp"
+// #include "../evp_pkey.hpp"
+// #include "../x509/x509.hpp"
+// #include "../x509/x509_name.hpp"
+
+export module ocsp_req;
+
+import evp;
+import x509;
 
 namespace openssl::ocsp {
 
@@ -17,7 +22,7 @@ static void oreq_ref_free(OCSP_REQUEST *x) {}
 
 class OCSPRequestBuilder;
 
-class OCSPRequest {
+export class OCSPRequest {
 private:
   std::shared_ptr<OCSP_REQUEST> m_ssl_type;
 

@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <cstdint>
 #include <memory>
@@ -7,12 +7,14 @@
 
 #include <openssl/ocsp.h>
 
+export module ocsp_resp;
+
 namespace openssl::ocsp {
 
 static void oresp_own_free(OCSP_RESPONSE *x) { OCSP_RESPONSE_free(x); }
 static void oresp_ref_free(OCSP_RESPONSE *x) {}
 
-class OCSPResponse {
+export class OCSPResponse {
 private:
   std::shared_ptr<OCSP_RESPONSE> m_ssl_type;
 

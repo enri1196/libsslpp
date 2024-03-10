@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <cstring>
 #include <memory>
@@ -10,7 +10,11 @@
 #include <openssl/asn1.h>
 
 // #include "../bio.hpp"
-#include "../bignum.hpp"
+// #include "../bignum.hpp"
+
+export module integer;
+
+import bn;
 
 namespace openssl::asn1 {
 
@@ -19,7 +23,7 @@ static void ai_ref_free(ASN1_INTEGER *x) {}
 
 class BigNum;
 
-class Asn1Integer {
+export class Asn1Integer {
 private:
   std::shared_ptr<ASN1_INTEGER> m_ssl_type;
 

@@ -1,8 +1,11 @@
 #include <print>
 #include <utility>
 
-#include "bio.hpp"
-#include "x509/x509.hpp"
+// #include "bio.hpp"
+// #include "x509/x509.hpp"
+
+import bio;
+import x509;
 
 using namespace openssl::x509;
 using namespace openssl::bio;

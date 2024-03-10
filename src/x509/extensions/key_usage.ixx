@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <cstdint>
 #include <optional>
@@ -6,9 +6,11 @@
 
 #include <openssl/x509v3.h>
 
+export module ku_ext;
+
 namespace openssl::x509 {
 
-class KeyUsage {
+export class KeyUsage {
 public:
   enum EKeyUsage : std::uint32_t {
     DIGITAL_SIGNATURE   = KU_DIGITAL_SIGNATURE,

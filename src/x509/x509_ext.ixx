@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <cstdint>
 #include <span>
@@ -8,7 +8,11 @@
 #include <openssl/x509v3.h>
 #include <openssl/x509.h>
 
-#include "../asn1/asn1_octet_string.hpp"
+// #include "../asn1/asn1_octet_string.hpp"
+
+export module x509_ext;
+
+import asn1;
 
 namespace openssl::x509 {
 
@@ -36,7 +40,7 @@ enum class X509V3ExtensionNid : std::uint32_t {
   NETSCAPE_CERT_TYPE            = NID_netscape_cert_type,
 };
 
-class X509Extension {
+export class X509Extension {
 private:
   std::shared_ptr<X509_EXTENSION> m_ssl_type;
 

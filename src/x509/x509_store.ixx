@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <memory>
 #include <stdexcept>
@@ -6,14 +6,18 @@
 #include <openssl/ossl_typ.h>
 #include <openssl/x509.h>
 
-#include "x509.hpp"
+// #include "x509.hpp"
+
+export module x509_store;
+
+import x509_cert;
 
 namespace openssl::x509 {
 
 static void store_own_free(X509_STORE *x) { X509_STORE_free(x); }
 static void store_ref_free(X509_STORE *x) {}
 
-class X509Store {
+export class X509Store {
 private:
   std::shared_ptr<X509_STORE> m_ssl_type;
 

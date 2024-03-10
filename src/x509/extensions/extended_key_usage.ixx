@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <cstdint>
 #include <optional>
@@ -6,9 +6,11 @@
 
 #include <openssl/x509v3.h>
 
+export module eku_ext;
+
 namespace openssl::x509 {
 
-class ExtendedKeyUsage {
+export class ExtendedKeyUsage {
 public:
   enum EExtendedKeyUsage : std::uint32_t {
     SSL_SERVER  = XKU_SSL_SERVER,

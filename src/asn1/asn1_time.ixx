@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <memory>
 #include <openssl/ossl_typ.h>
@@ -8,14 +8,18 @@
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
 
-#include "../bio.hpp"
+// #include "../bio.hpp"
+
+export module time;
+
+import bio;
 
 namespace openssl::asn1 {
 
 static void at_own_free(ASN1_TIME *x) { ASN1_TIME_free(x); }
 static void at_ref_free(ASN1_TIME *x) {}
 
-class Asn1Time {
+export class Asn1Time {
 private:
   std::shared_ptr<ASN1_TIME> m_ssl_type;
 

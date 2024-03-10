@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <cstddef>
 #include <cstring>
@@ -9,7 +9,11 @@
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
 
-#include "bio.hpp"
+// #include "bio.hpp"
+
+export module evp;
+
+import bio;
 
 namespace openssl::key {
 
@@ -63,9 +67,9 @@ struct Public {};
 
 template <typename KeyType>
   requires std::same_as<KeyType, Private> || std::same_as<KeyType, Public>
-class EvpPKey {};
+export class EvpPKey {};
 
-template <> class EvpPKey<Public> {
+template <> export class EvpPKey<Public> {
 private:
   std::shared_ptr<EVP_PKEY> m_ssl_type;
 
@@ -85,7 +89,7 @@ public:
   }
 };
 
-template <> class EvpPKey<Private> {
+template <> export class EvpPKey<Private> {
 private:
   std::shared_ptr<EVP_PKEY> m_ssl_type;
 

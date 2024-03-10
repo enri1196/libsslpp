@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <memory>
 #include <span>
@@ -6,7 +6,11 @@
 #include <openssl/safestack.h>
 #include <openssl/ts.h>
 
-#include "../asn1/asn1_integer.hpp"
+// #include "../asn1/asn1_integer.hpp"
+
+export module tsp_req;
+
+import asn1;
 
 namespace openssl::ts {
 
@@ -15,7 +19,7 @@ static void treq_ref_free(TS_REQ *x) {}
 
 class TSRequestBuilder;
 
-class TSRequest {
+export class TSRequest {
 private:
   std::shared_ptr<TS_REQ> m_ssl_type;
 
