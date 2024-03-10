@@ -2,16 +2,16 @@ module;
 
 #include <cstring>
 #include <memory>
-#include <openssl/bn.h>
 #include <stdexcept>
 #include <vector>
 #include <string>
 
+// #include <openssl/bn.h>
 #include <openssl/asn1.h>
 
 export module asn1:integer;
 
-import bn;
+// import bn;
 
 namespace openssl::asn1 {
 
@@ -27,6 +27,9 @@ private:
       : m_ssl_type(ref, take_ownership ? &ai_own_free : &ai_ref_free) {}
 
 public:
+  static auto own(ASN1_INTEGER *ref) -> Asn1Integer {
+    return Asn1Integer(ref);
+  }
   static auto ref(ASN1_INTEGER *ref) -> Asn1Integer {
     return Asn1Integer(ref, false);
   }
@@ -48,13 +51,13 @@ public:
     return asn_int;
   }
 
-  static auto from(bn::BigNum&& bni) -> Asn1Integer {
-    auto asn1_int = BN_to_ASN1_INTEGER(bni.as_ptr(), nullptr);
-    if (asn1_int == nullptr) {
-      throw std::runtime_error("Asn1Integer conversion from BN Error");
-    }
-    return Asn1Integer(asn1_int);
-  }
+  // static auto from(bn::BigNum&& bni) -> Asn1Integer {
+  //   auto asn1_int = BN_to_ASN1_INTEGER(bni.as_ptr(), nullptr);
+  //   if (asn1_int == nullptr) {
+  //     throw std::runtime_error("Asn1Integer conversion from BN Error");
+  //   }
+  //   return Asn1Integer(asn1_int);
+  // }
 
   auto as_ptr() const noexcept -> ASN1_INTEGER* {
     return m_ssl_type.get();

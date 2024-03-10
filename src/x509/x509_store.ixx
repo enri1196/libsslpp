@@ -6,8 +6,6 @@ module;
 #include <openssl/ossl_typ.h>
 #include <openssl/x509.h>
 
-// #include "x509.hpp"
-
 export module x509:x509_store;
 
 import :x509_cert;

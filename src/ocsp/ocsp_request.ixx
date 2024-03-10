@@ -16,7 +16,7 @@ namespace openssl::ocsp {
 static void oreq_own_free(OCSP_REQUEST *x) { OCSP_REQUEST_free(x); }
 static void oreq_ref_free(OCSP_REQUEST *x) {}
 
-class OCSPRequestBuilder;
+export class OCSPRequestBuilder;
 
 export class OCSPRequest {
 private:
@@ -51,7 +51,7 @@ public:
   auto as_ptr() const noexcept -> OCSP_REQUEST * { return m_ssl_type.get(); }
 };
 
-class OCSPRequestBuilder {
+export class OCSPRequestBuilder {
 private:
   OCSP_REQUEST *req{OCSP_REQUEST_new()};
 

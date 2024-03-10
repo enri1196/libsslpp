@@ -6,8 +6,6 @@ module;
 #include <openssl/safestack.h>
 #include <openssl/ts.h>
 
-// #include "../asn1/asn1_integer.hpp"
-
 export module tsp:tsp_req;
 
 import asn1;
@@ -17,7 +15,7 @@ namespace openssl::ts {
 static void treq_own_free(TS_REQ *x) { TS_REQ_free(x); }
 static void treq_ref_free(TS_REQ *x) {}
 
-class TSRequestBuilder;
+export class TSRequestBuilder;
 
 export class TSRequest {
 private:

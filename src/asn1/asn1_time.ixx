@@ -10,7 +10,7 @@ module;
 
 export module asn1:time;
 
-import bio;
+// import bio;
 
 namespace openssl::asn1 {
 
@@ -40,13 +40,13 @@ public:
 
   auto as_ptr() const noexcept -> ASN1_TIME * { return m_ssl_type.get(); }
 
-  auto to_string() const -> std::string {
-    auto bio = openssl::bio::SSLBio::memory();
-    if (ASN1_TIME_print(bio.as_ptr(), this->as_ptr()) != 1) {
-      throw std::runtime_error("Asn1Time to string Error");
-    }
-    return bio.get_mem_ptr();
-  }
+  // auto to_string() const -> std::string {
+  //   auto bio = openssl::bio::SSLBio::memory();
+  //   if (ASN1_TIME_print(bio.as_ptr(), this->as_ptr()) != 1) {
+  //     throw std::runtime_error("Asn1Time to string Error");
+  //   }
+  //   return bio.get_mem_ptr();
+  // }
 
   auto to_time_point() const -> std::chrono::system_clock::time_point {
     struct tm tm;

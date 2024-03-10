@@ -1,6 +1,7 @@
 module;
 
 #include <cstdint>
+#include <memory>
 #include <span>
 #include <stdexcept>
 #include <string_view>

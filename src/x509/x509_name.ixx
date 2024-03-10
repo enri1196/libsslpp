@@ -6,8 +6,6 @@ module;
 
 #include <openssl/x509.h>
 
-// #include "../bio.hpp"
-
 export module x509:x509_name;
 
 import bio;
@@ -17,7 +15,7 @@ namespace openssl::x509 {
 static void xname_own_free(X509_NAME *x) { X509_NAME_free(x); }
 static void xname_ref_free(X509_NAME *x) {}
 
-class X509NameBuilder;
+export class X509NameBuilder;
 
 export class X509Name {
 private:
@@ -46,7 +44,7 @@ public:
   }
 };
 
-class X509NameEntry {
+export class X509NameEntry {
 public:
   enum EEntries {
     C,
@@ -100,7 +98,7 @@ private:
   EEntries value;
 };
 
-class X509NameBuilder {
+export class X509NameBuilder {
 private:
   X509_NAME* name{X509_NAME_new()};
 

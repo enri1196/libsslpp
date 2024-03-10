@@ -3,7 +3,6 @@ module;
 #include <cstdint>
 #include <memory>
 #include <optional>
-#include <print>
 #include <span>
 #include <stdexcept>
 #include <string_view>
@@ -18,9 +17,10 @@ export module x509:x509_cert;
 
 import asn1;
 import bio;
-import ext;
 import evp;
 import :x509_name;
+import :ku_ext;
+import :eku_ext;
 
 namespace openssl::x509 {
 
@@ -78,14 +78,14 @@ public:
     return asn1::Asn1Integer::ref(serial);
   }
 
-  auto subject() const -> x509::X509Name {
+  auto subject() const -> X509Name {
     auto subject = X509_get_subject_name(this->as_ptr());
-    return x509::X509Name::ref(subject);
+    return X509Name::ref(subject);
   }
 
-  auto issuer() const -> x509::X509Name {
-    auto subject = X509_get_issuer_name(this->as_ptr());
-    return x509::X509Name::ref(subject);
+  auto issuer() const -> X509Name {
+    auto issuer = X509_get_issuer_name(this->as_ptr());
+    return X509Name::ref(issuer);
   }
 
   auto not_before() const -> asn1::Asn1Time {
@@ -112,42 +112,40 @@ public:
   }
 
   auto key_usage() const -> std::optional<KeyUsage> {
-    std::println("{}", X509_get_key_usage(this->as_ptr()));
     return KeyUsage::from(X509_get_key_usage(this->as_ptr()));
   }
 
   auto extended_key_usage() const -> std::optional<ExtendedKeyUsage> {
-    std::println("{}", X509_get_extended_key_usage(this->as_ptr()));
     return ExtendedKeyUsage::from(X509_get_extended_key_usage(this->as_ptr()));
   }
 };
 
-class X509Builder {
-  int add_ext(X509 *cert, int nid, const char *value) {
-    X509_EXTENSION *ex;
-    X509V3_CTX ctx;
-    /* This sets the 'context' of the extensions. */
-    /* No configuration database */
-    X509V3_set_ctx_nodb(&ctx);
-    /* Issuer and subject certs: both the target since it is self signed,
-     * no request and no CRL
-     */
-    X509V3_set_ctx(&ctx, cert, cert, NULL, NULL, 0);
-    ex = X509V3_EXT_conf_nid(NULL, &ctx, nid, value);
-    if (!ex)
-      return 0;
+export class X509Builder {
+  // int add_ext(X509 *cert, int nid, const char *value) {
+  //   X509_EXTENSION *ex;
+  //   X509V3_CTX ctx;
+  //   /* This sets the 'context' of the extensions. */
+  //   /* No configuration database */
+  //   X509V3_set_ctx_nodb(&ctx);
+  //   /* Issuer and subject certs: both the target since it is self signed,
+  //    * no request and no CRL
+  //    */
+  //   X509V3_set_ctx(&ctx, cert, cert, NULL, NULL, 0);
+  //   ex = X509V3_EXT_conf_nid(NULL, &ctx, nid, value);
+  //   if (!ex)
+  //     return 0;
 
-    X509_add_ext(cert, ex, -1);
-    X509_EXTENSION_free(ex);
-    return 1;
-  }
+  //   X509_add_ext(cert, ex, -1);
+  //   X509_EXTENSION_free(ex);
+  //   return 1;
+  // }
 
-  auto test() {
-    int nid;
-    nid = OBJ_create("1.2.3.4", "MyAlias", "My Test Alias Extension");
-    X509V3_EXT_add_alias(nid, NID_netscape_comment);
-    add_ext(nullptr, nid, "example comment alias");
-  }
+  // auto test() {
+  //   int nid;
+  //   nid = OBJ_create("1.2.3.4", "MyAlias", "My Test Alias Extension");
+  //   X509V3_EXT_add_alias(nid, NID_netscape_comment);
+  //   add_ext(nullptr, nid, "example comment alias");
+  // }
 };
 
 } // namespace openssl::x509

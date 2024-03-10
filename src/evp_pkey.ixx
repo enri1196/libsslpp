@@ -9,51 +9,24 @@ module;
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
 
-// #include "bio.hpp"
+import bio;
 
 export module evp;
 
-import bio;
-
 namespace openssl::key {
 
-enum class EcCurves : std::int32_t {
+export enum class EcCurves : std::int32_t {
   SECP_112R1 = NID_secp112r1,
   SECP_112R2 = NID_secp112r2,
   SECP_128R1 = NID_secp128r1,
   SECP_128R2 = NID_secp128r2,
-  // NID_secp160k1
-  // NID_secp160r1
-  // NID_secp160r2
-  // NID_secp192k1
-  // NID_secp224k1
-  // NID_secp224r1
   SECP_256K1 = NID_secp256k1,
-  // NID_secp384r1
   SECP_521R1 = NID_secp521r1,
-  // NID_sect113r1
-  // NID_sect113r2
-  // NID_sect131r1
-  // NID_sect131r2
-  // NID_sect163k1
-  // NID_sect163r1
-  // NID_sect163r2
-  // NID_sect193r1
-  // NID_sect193r2
-  // NID_sect233k1
-  // NID_sect233r1
-  // NID_sect239k1
-  // NID_sect283k1
-  // NID_sect283r1
-  // NID_sect409k1
-  // NID_sect409r1
-  // NID_sect571k1
-  // NID_sect571r1
   X25519 = NID_X25519,
   ED448 = NID_Ed448,
 };
 
-enum class Rsa {
+export enum class Rsa {
   R1024_BITS = 1024,
   R2048_BITS = 2048,
   R4096_BITS = 4096,
@@ -62,8 +35,8 @@ enum class Rsa {
 static void evp_own_free(EVP_PKEY *x) { EVP_PKEY_free(x); }
 static void evp_ref_free(EVP_PKEY *x) {}
 
-struct Private {};
-struct Public {};
+export struct Private {};
+export struct Public {};
 
 export template <typename KeyType>
   requires std::same_as<KeyType, Private> || std::same_as<KeyType, Public>

@@ -4,9 +4,11 @@ module;
 #include <string>
 
 #include <openssl/bn.h>
-#include <openssl/ossl_typ.h>
+#include <openssl/asn1.h>
 
 export module bn;
+
+// import asn1;
 
 namespace openssl::bn {
 
@@ -25,7 +27,7 @@ public:
   static auto own(BIGNUM *ref) -> BigNum { return BigNum(ref); }
   static auto ref(BIGNUM *ref) -> BigNum { return BigNum(ref, false); }
 
-  // static auto from(openssl::asn1::Asn1Integer&& asn1_int) -> BigNum {
+  // static auto from(asn1::Asn1Integer&& asn1_int) -> BigNum {
   //   auto bn = ASN1_INTEGER_to_BN(asn1_int.as_ptr(), nullptr);
   //   if (bn == nullptr) {
   //     throw std::runtime_error("BigNum conversion Error");
