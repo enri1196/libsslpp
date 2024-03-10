@@ -6,7 +6,7 @@ module;
 
 #include <openssl/x509.h>
 
-export module x509;
+export module x509:x509_req;
 
 namespace openssl::x509 {
 

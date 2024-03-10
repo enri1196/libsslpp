@@ -1,16 +1,14 @@
 module;
 
+#include <chrono>
 #include <memory>
-#include <openssl/ossl_typ.h>
 #include <string_view>
 
 #include <openssl/asn1.h>
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
 
-// #include "../bio.hpp"
-
-export module time;
+export module asn1:time;
 
 import bio;
 
@@ -23,7 +21,7 @@ export class Asn1Time {
 private:
   std::shared_ptr<ASN1_TIME> m_ssl_type;
 
-  Asn1Time() : m_ssl_type(ASN1_TIME_new(), &at_own_free) {}
+  Asn1Time() = delete;
   Asn1Time(ASN1_TIME *time, bool take_ownership = true)
       : m_ssl_type(time, take_ownership ? &at_own_free : &at_ref_free) {}
 
@@ -59,4 +57,4 @@ public:
   }
 }; // class Asn1Time
 
-} // namespace openssl
+} // namespace openssl::asn1

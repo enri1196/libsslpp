@@ -8,7 +8,7 @@ module;
 
 // #include "../bio.hpp"
 
-export module x509_name;
+export module x509:x509_name;
 
 import bio;
 

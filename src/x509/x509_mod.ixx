@@ -1,9 +1,8 @@
-module;
-
 export module x509;
 
-import x509_cert;
-import x509_store;
-import x509_name;
-import x509_ext;
-import ext;
+export import :x509_cert;
+export import :x509_store;
+export import :x509_name;
+export import :x509_ext;
+export import :ku_ext;
+export import :eku_ext;

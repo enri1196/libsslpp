@@ -8,9 +8,9 @@ module;
 
 // #include "x509.hpp"
 
-export module x509_store;
+export module x509:x509_store;
 
-import x509_cert;
+import :x509_cert;
 
 namespace openssl::x509 {
 

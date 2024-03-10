@@ -14,21 +14,13 @@ module;
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 
-// #include "../asn1/asn1_integer.hpp"
-// #include "../asn1/asn1_time.hpp"
-// #include "../bio.hpp"
-// #include "../evp_pkey.hpp"
-// #include "extensions/extended_key_usage.hpp"
-// #include "extensions/key_usage.hpp"
-// #include "x509_name.hpp"
-
-export module x509_cert;
+export module x509:x509_cert;
 
 import asn1;
 import bio;
-import x509_name;
 import ext;
 import evp;
+import :x509_name;
 
 namespace openssl::x509 {
 

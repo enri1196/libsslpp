@@ -1,4 +1,4 @@
-moudle;
+module;
 
 #include <memory>
 #include <span>
@@ -6,11 +6,7 @@ moudle;
 
 #include <openssl/ocsp.h>
 
-// #include "../evp_pkey.hpp"
-// #include "../x509/x509.hpp"
-// #include "../x509/x509_name.hpp"
-
-export module ocsp_req;
+export module ocsp:ocsp_req;
 
 import evp;
 import x509;

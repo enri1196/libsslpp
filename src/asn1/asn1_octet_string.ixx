@@ -7,7 +7,7 @@ module;
 
 #include <openssl/asn1.h>
 
-export module octet_string;
+export module asn1:octet_string;
 
 namespace openssl::asn1 {
 

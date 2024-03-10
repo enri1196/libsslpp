@@ -1,6 +1,4 @@
-module;
-
 export module tsp;
 
-import tsp_req;
-import tsp_resp;
+export import :tsp_req;
+export import :tsp_resp;

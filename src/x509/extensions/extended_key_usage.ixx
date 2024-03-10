@@ -6,7 +6,7 @@ module;
 
 #include <openssl/x509v3.h>
 
-export module eku_ext;
+export module x509:eku_ext;
 
 namespace openssl::x509 {
 

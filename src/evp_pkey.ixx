@@ -65,11 +65,11 @@ static void evp_ref_free(EVP_PKEY *x) {}
 struct Private {};
 struct Public {};
 
-template <typename KeyType>
+export template <typename KeyType>
   requires std::same_as<KeyType, Private> || std::same_as<KeyType, Public>
-export class EvpPKey {};
+class EvpPKey {};
 
-template <> export class EvpPKey<Public> {
+export template <> class EvpPKey<Public> {
 private:
   std::shared_ptr<EVP_PKEY> m_ssl_type;
 
@@ -89,7 +89,7 @@ public:
   }
 };
 
-template <> export class EvpPKey<Private> {
+export template <> class EvpPKey<Private> {
 private:
   std::shared_ptr<EVP_PKEY> m_ssl_type;
 

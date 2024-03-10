@@ -7,7 +7,7 @@ module;
 
 #include <openssl/ocsp.h>
 
-export module ocsp_resp;
+export module ocsp:ocsp_resp;
 
 namespace openssl::ocsp {
 

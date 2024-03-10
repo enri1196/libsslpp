@@ -8,7 +8,7 @@ module;
 
 // #include "../asn1/asn1_integer.hpp"
 
-export module tsp_req;
+export module tsp:tsp_req;
 
 import asn1;
 
@@ -71,7 +71,7 @@ public:
   }
 };
 
-class TSRequestBuilder {
+export class TSRequestBuilder {
 private:
   TS_REQ *req{TS_REQ_new()};
 
@@ -103,4 +103,4 @@ public:
   }
 };
 
-}  // namespace openssl
+}  // namespace openssl::ts

@@ -8,9 +8,7 @@ module;
 #include <openssl/x509v3.h>
 #include <openssl/x509.h>
 
-// #include "../asn1/asn1_octet_string.hpp"
-
-export module x509_ext;
+export module x509:x509_ext;
 
 import asn1;
 

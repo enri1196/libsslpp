@@ -9,10 +9,7 @@ module;
 
 #include <openssl/asn1.h>
 
-// #include "../bio.hpp"
-// #include "../bignum.hpp"
-
-export module integer;
+export module asn1:integer;
 
 import bn;
 
@@ -20,8 +17,6 @@ namespace openssl::asn1 {
 
 static void ai_own_free(ASN1_INTEGER *x) { ASN1_INTEGER_free(x); }
 static void ai_ref_free(ASN1_INTEGER *x) {}
-
-class BigNum;
 
 export class Asn1Integer {
 private:
@@ -84,4 +79,4 @@ public:
   }
 };
 
-}  // namespace openssl
+}  // namespace openssl::asn1

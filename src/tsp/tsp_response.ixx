@@ -5,7 +5,7 @@ module;
 
 #include <openssl/ts.h>
 
-export module tsp_resp;
+export module tsp:tsp_resp;
 
 namespace openssl::ts {
 
@@ -36,4 +36,4 @@ public:
   auto as_ptr() const noexcept -> TS_RESP * { return m_ssl_type.get(); }
 };
 
-} // namespace openssl
+} // namespace openssl::ts

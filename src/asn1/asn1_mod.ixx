@@ -1,7 +1,5 @@
-module;
-
 export module asn1;
 
-import octet_string;
-import time;
-import integer;
+export import :integer;
+export import :octet_string;
+export import :time;
