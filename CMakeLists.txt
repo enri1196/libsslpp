@@ -40,4 +40,4 @@ target_sources(sslpp
 # Create an executable
 add_executable(test_bin src/main.cxx)
 # Link to the library foo
-target_link_libraries(test_bin PRIVATE sslpp OpenSSL::applink)
+target_link_libraries(test_bin PRIVATE sslpp OpenSSL::SSL OpenSSL::Crypto)
