@@ -107,16 +107,36 @@ public:
     return X509_get_ext_count(this->as_ptr());
   }
 
-  auto key_usage() const -> std::optional<KeyUsage> {
+  auto key_usage() const -> KeyUsage {
     return KeyUsage::from(X509_get_key_usage(this->as_ptr()));
   }
 
-  auto extended_key_usage() const -> std::optional<ExtendedKeyUsage> {
+  auto extended_key_usage() const -> ExtendedKeyUsage {
     return ExtendedKeyUsage::from(X509_get_extended_key_usage(this->as_ptr()));
   }
 };
 
-export class X509Builder {
+export class X509CertBuilder {
+private:
+  X509 *cert;
+
+  X509CertBuilder() = default;
+
+public:
+  static auto init() -> X509CertBuilder {
+    auto builder = X509CertBuilder();
+    builder.cert = X509_new();
+    return std::forward<X509CertBuilder>(*this);
+  }
+
+  auto set_serial(bn::BigNum &&cert_id) -> X509CertBuilder {
+    return std::forward<X509CertBuilder>(*this);
+  }
+
+  auto build() -> X509Certificate {
+    return X509Certificate::own(cert);
+  }
+
   // int add_ext(X509 *cert, int nid, const char *value) {
   //   X509_EXTENSION *ex;
   //   X509V3_CTX ctx;
