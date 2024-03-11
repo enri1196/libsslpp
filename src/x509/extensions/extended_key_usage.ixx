@@ -2,7 +2,7 @@ module;
 
 #include <cstdint>
 #include <optional>
-#include <string_view>
+#include <string>
 
 #include <openssl/x509v3.h>
 
@@ -26,60 +26,32 @@ public:
 
   static auto from(std::uint32_t value) -> std::optional<ExtendedKeyUsage> {
     auto eku = ExtendedKeyUsage();
-    switch (value) {
-      case SSL_SERVER:
-        eku.value = SSL_SERVER;
-      case SSL_CLIENT:
-        eku.value = SSL_CLIENT;
-      case SMIME:
-        eku.value = SMIME;
-      case CODE_SIGN:
-        eku.value = CODE_SIGN;
-      case OCSP_SIGN:
-        eku.value = OCSP_SIGN;
-      case TIMESTAMP:
-        eku.value = TIMESTAMP;
-      case DVCS:
-        eku.value = DVCS;
-      case ANYEKU:
-        eku.value = ANYEKU;
-      case ABSENT:
-        eku.value = ABSENT;
-      default:
-        return std::nullopt;
-    }
+    eku.value = value;
     return eku;
   }
 
-  constexpr operator EExtendedKeyUsage() const { return value; }
+  // constexpr operator EExtendedKeyUsage() const { return value; }
 
-  auto to_string() const -> std::string_view {
-    std::string_view str;
-    switch (value) {
-      case SSL_SERVER:
-        str = "SSL_SERVER";
-      case SSL_CLIENT:
-        str = "SSL_CLIENT";
-      case SMIME:
-        str = "SMIME";
-      case CODE_SIGN:
-        str = "CODE_SIGN";
-      case OCSP_SIGN:
-        str = "OCSP_SIGN";
-      case TIMESTAMP:
-        str = "TIMESTAMP";
-      case DVCS:
-        str = "DVCS";
-      case ANYEKU:
-        str = "ANYEKU";
-      case ABSENT:
-        str = "ABSENT";
-    }
+  auto to_string() const -> std::string {
+    std::string str;
+    if (value & XKU_SSL_SERVER) str += "SSL_SERVER, ";
+    if (value & XKU_SSL_CLIENT) str += "SSL_CLIENT, ";
+    if (value & XKU_SMIME) str += "SMIME, ";
+    if (value & XKU_CODE_SIGN) str += "CODE_SIGN, ";
+    if (value & XKU_OCSP_SIGN) str += "OCSP_SIGN, ";
+    if (value & XKU_TIMESTAMP) str += "TIMESTAMP, ";
+    if (value & XKU_DVCS) str += "DVCS, ";
+    if (value & XKU_ANYEKU) str += "ANYEKU, ";
+    if (value == UINT32_MAX) str += "ABSENT";
+
+    // Remove the trailing comma and space
+    if (!str.empty()) str.resize(str.size() - 2);
+
     return str;
   }
 
 private:
-  EExtendedKeyUsage value;
+  std::int32_t value;
 };
 
 

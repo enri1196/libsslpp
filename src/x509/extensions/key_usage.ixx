@@ -2,7 +2,7 @@ module;
 
 #include <cstdint>
 #include <optional>
-#include <string_view>
+#include <string>
 
 #include <openssl/x509v3.h>
 
@@ -27,64 +27,33 @@ public:
 
   static auto from(std::uint32_t value) -> std::optional<KeyUsage> {
     auto ku = KeyUsage();
-    switch (value) {
-      case DIGITAL_SIGNATURE:
-        ku.value = DIGITAL_SIGNATURE;
-      case NON_REPUDIATION:
-        ku.value = NON_REPUDIATION;
-      case KEY_ENCIPHERMENT:
-        ku.value = KEY_ENCIPHERMENT;
-      case DATA_ENCIPHERMENT:
-        ku.value = DATA_ENCIPHERMENT;
-      case KEY_AGREEMENT:
-        ku.value = KEY_AGREEMENT;
-      case KEY_CERT_SIGN:
-        ku.value = KEY_CERT_SIGN;
-      case CRL_SIGN:
-        ku.value = CRL_SIGN;
-      case ENCIPHER_ONLY:
-        ku.value = ENCIPHER_ONLY;
-      case DECIPHER_ONLY:
-        ku.value = DECIPHER_ONLY;
-      case ABSENT:
-        ku.value = ABSENT;
-      default:
-        return std::nullopt;
-    }
+    ku.value = value;
     return ku;
   }
 
-  constexpr operator EKeyUsage() const { return value; }
+  // constexpr operator EKeyUsage() const { return value; }
 
-  auto to_string() const -> std::string_view {
-    std::string_view ku_s;
-    switch (value) {
-      case DIGITAL_SIGNATURE:
-        ku_s = "DIGITAL_SIGNATURE";
-      case NON_REPUDIATION:
-        ku_s = "NON_REPUDIATION";
-      case KEY_ENCIPHERMENT:
-        ku_s = "KEY_ENCIPHERMENT";
-      case DATA_ENCIPHERMENT:
-        ku_s = "DATA_ENCIPHERMENT";
-      case KEY_AGREEMENT:
-        ku_s = "KEY_AGREEMENT";
-      case KEY_CERT_SIGN:
-        ku_s = "KEY_CERT_SIGN";
-      case CRL_SIGN:
-        ku_s = "CRL_SIGN";
-      case ENCIPHER_ONLY:
-        ku_s = "ENCIPHER_ONLY";
-      case DECIPHER_ONLY:
-        ku_s = "DECIPHER_ONLY";
-      case ABSENT:
-        ku_s = "ABSENT";
-    }
-    return ku_s;
+  auto to_string() const -> std::string {
+    std::string str;
+    if (value & KU_DIGITAL_SIGNATURE) str += "DIGITAL_SIGNATURE, ";
+    if (value & KU_NON_REPUDIATION) str += "NON_REPUDIATION, ";
+    if (value & KU_KEY_ENCIPHERMENT) str += "KEY_ENCIPHERMENT, ";
+    if (value & KU_DATA_ENCIPHERMENT) str += "DATA_ENCIPHERMENT, ";
+    if (value & KU_KEY_AGREEMENT) str += "KEY_AGREEMENT, ";
+    if (value & KU_KEY_CERT_SIGN) str += "KEY_CERT_SIGN, ";
+    if (value & KU_CRL_SIGN) str += "CRL_SIGN, ";
+    if (value & KU_ENCIPHER_ONLY) str += "ENCIPHER_ONLY, ";
+    if (value & KU_DECIPHER_ONLY) str += "DECIPHER_ONLY, ";
+    if (value & UINT32_MAX) str += "ABSENT, ";
+
+    // Remove the trailing comma and space
+    if (!str.empty()) str.resize(str.size() - 2);
+
+    return str;
   }
 
 private:
-  EKeyUsage value;
+  std::int32_t value;
 };
 
 

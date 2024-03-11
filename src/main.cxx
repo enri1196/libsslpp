@@ -19,7 +19,9 @@ auto main() -> int {
   std::println("not_before: {}", cert.not_before().to_string());
   std::println("not_after: {}", cert.not_after().to_string());
   std::println("pub_key: {}", cert.pub_key().to_string());
-  std::println("key_usage: {}", cert.key_usage().has_value());
-  std::println("extended_key_usage: {}", cert.extended_key_usage().has_value());
+  if (cert.key_usage().has_value())
+    std::println("key_usage: {}", cert.key_usage().value().to_string());
+  if (cert.extended_key_usage().has_value())
+    std::println("extended_key_usage: {}", cert.extended_key_usage().value().to_string());
   return 0;
 }
