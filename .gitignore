@@ -2,3 +2,4 @@
 .vscode
 builddir
 .DS_Store
+build

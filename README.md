@@ -1,6 +1,9 @@
 # Libsslpp
-## High level bindings to openssl/libressl
+## High level bindings to OpenSSL/LibreSSL
 
 ```
-meson setup builddir && meson compile -C builddir
+mkdir build
+cd build
+cmake -GNinja ..
+ninja
 ```
