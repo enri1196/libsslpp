@@ -107,10 +107,6 @@ public:
     return X509_get_ext_count(this->as_ptr());
   }
 
-  auto extensions() const {
-    auto st = X509_get0_extensions(this->as_ptr());
-  }
-
   auto key_usage() const -> std::optional<KeyUsage> {
     return KeyUsage::from(X509_get_key_usage(this->as_ptr()));
   }

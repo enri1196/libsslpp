@@ -1,7 +1,6 @@
 module;
 
 #include <cstdint>
-#include <optional>
 #include <string>
 
 #include <openssl/x509v3.h>
@@ -24,7 +23,7 @@ public:
     ABSENT      = UINT32_MAX
   };
 
-  static auto from(std::uint32_t value) -> std::optional<ExtendedKeyUsage> {
+  static auto from(std::uint32_t value) -> ExtendedKeyUsage {
     auto eku = ExtendedKeyUsage();
     eku.value = value;
     return eku;
