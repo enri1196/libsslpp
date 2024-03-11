@@ -34,8 +34,7 @@ public:
   static auto open_file(const std::filesystem::path &path) -> SSLBio {
     auto *bio_ptr = BIO_new_file(path.c_str(), "rb");
     if (bio_ptr == nullptr) {
-      // return Unexpected(SSLError(ErrorCode::IOError, "File not found"));
-      throw std::runtime_error("File Not Found");
+      throw std::runtime_error("BIO File Not Found");
     }
     return SSLBio(bio_ptr);
   }
@@ -53,10 +52,10 @@ public:
   }
 
   auto write_mem(std::string_view &&buf) -> void {
-    int result =
-        BIO_write(this->as_ptr(), buf.data(), static_cast<int>(buf.length()));
-    if (result < static_cast<int>(buf.length())) {
-      throw std::runtime_error("Mem Write Error");
+    auto length = static_cast<int>(buf.length());
+    int result = BIO_write(this->as_ptr(), buf.data(), length);
+    if (result < length) {
+      throw std::runtime_error("BIO Mem Write Error");
     }
   }
 
@@ -64,7 +63,7 @@ public:
     int result =
         BIO_write(this->as_ptr(), buf.data(), static_cast<int>(buf.size()));
     if (result < static_cast<int>(buf.size())) {
-      throw std::runtime_error("Mem Write Error");
+      throw std::runtime_error("BIO Mem Write Error");
     }
   }
 
