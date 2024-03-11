@@ -27,6 +27,7 @@ public:
   static auto own(BIGNUM *ref) -> BigNum { return BigNum(ref); }
   static auto ref(BIGNUM *ref) -> BigNum { return BigNum(ref, false); }
 
+  // Error: Circular dependency :|
   // static auto from(asn1::Asn1Integer&& asn1_int) -> BigNum {
   //   auto bn = ASN1_INTEGER_to_BN(asn1_int.as_ptr(), nullptr);
   //   if (bn == nullptr) {

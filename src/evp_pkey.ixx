@@ -9,9 +9,9 @@ module;
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
 
-import bio;
-
 export module evp;
+
+import bio;
 
 namespace openssl::key {
 
