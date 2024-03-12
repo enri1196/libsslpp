@@ -72,15 +72,28 @@ public:
     return X509Certificate(cert);
   }
 
-  static auto from(X509Request &&req) -> X509Certificate {
-    return X509Certificate::own(X509_new());
-  }
+  // static auto from(X509Request &&req, const key::EvpPKey<key::Private> &key) -> X509Certificate {
+  //   // Create an X509 certificate
+  //   X509 *cert = X509_new();
+  //   X509_set_version(cert, 2); // X509 v3
+  //   ASN1_INTEGER_set(X509_get_serialNumber(cert), 1); // Set serial number
+
+
+
+  //   X509_set_pubkey(cert, pkey); // Set public key
+  //   X509_set_subject_name(cert, X509_REQ_get_subject_name(req)); // Set subject
+  //   X509_set_issuer_name(cert, X509_REQ_get_subject_name(req)); // Set issuer (self-signed)
+
+  //   // Sign the certificate
+  //   X509_sign(cert, pkey, EVP_sha256());
+  //   return X509Certificate::own(cert);
+  // }
 
   auto as_ptr() const noexcept -> X509 * { return m_ssl_type.get(); }
 
   auto serial() const -> asn1::Asn1Integer {
-    auto serial =
-        const_cast<ASN1_INTEGER *>(X509_get0_serialNumber(this->as_ptr()));
+    auto _serial = X509_get0_serialNumber(this->as_ptr());
+    auto serial = const_cast<ASN1_INTEGER *>(_serial);
     return asn1::Asn1Integer::ref(serial);
   }
 
@@ -122,18 +135,50 @@ public:
   }
 };
 
+export enum class X509Version : long {
+  V1,
+  V2,
+  V3
+};
+
 export class X509CertBuilder {
 private:
   X509 *cert;
 
-  X509CertBuilder() : cert(X509_new()) {};
+  X509CertBuilder() : cert(X509_new()) {}
 
 public:
   static auto init() -> X509CertBuilder {
     return X509CertBuilder();
   }
 
+  auto set_version(X509Version version) -> X509CertBuilder {
+    X509_set_version(cert, static_cast<long>(version));
+    return std::forward<X509CertBuilder>(*this);
+  }
+
   auto set_serial(bn::BigNum &&cert_id) -> X509CertBuilder {
+    X509_set_serialNumber(cert, cert_id.as_ptr());
+    return std::forward<X509CertBuilder>(*this);
+  }
+
+  auto set_not_before(asn1::Asn1Time &&time) -> X509CertBuilder {
+    X509_set1_notBefore(cert, time.as_ptr());
+    return std::forward<X509CertBuilder>(*this);
+  }
+
+  auto set_not_after(asn1::Asn1Time &&time) -> X509CertBuilder {
+    X509_set1_notAfter(cert, time.as_ptr());
+    return std::forward<X509CertBuilder>(*this);
+  }
+
+  auto set_subject(X509Name &&name) -> X509CertBuilder {
+    X509_set_subject_name(cert, name.as_ptr());
+    return std::forward<X509CertBuilder>(*this);
+  }
+
+  auto set_issuer(X509Name &&name) -> X509CertBuilder {
+    X509_set_issuer_name(cert, name.as_ptr());
     return std::forward<X509CertBuilder>(*this);
   }
 
