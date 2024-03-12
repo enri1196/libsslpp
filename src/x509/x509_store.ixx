@@ -33,10 +33,10 @@ public:
 
   auto as_ptr() const noexcept -> X509_STORE * { return m_ssl_type.get(); }
 
-  auto len() const -> std::size_t {
-    auto sk = X509_STORE_get0_objects(this->as_ptr());
-    return static_cast<std::size_t>(sk->stack.num);
-  }
+  // auto len() const -> std::size_t {
+  //   auto sk = X509_STORE_get0_objects(this->as_ptr());
+  //   return static_cast<std::size_t>(sk->stack.num);
+  // }
 
   auto add_cert(X509Certificate&& cert) const -> void {
     if (X509_STORE_add_cert(this->as_ptr(), cert.as_ptr()) <= 0) {
