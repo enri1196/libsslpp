@@ -15,10 +15,12 @@ module;
 
 export module x509:x509_cert;
 
+import bn;
 import asn1;
 import bio;
 import evp;
 import :x509_name;
+import :x509_req;
 import :ku_ext;
 import :eku_ext;
 
@@ -68,6 +70,10 @@ public:
       throw std::runtime_error("Cert conversion Error");
     }
     return X509Certificate(cert);
+  }
+
+  static auto from(X509Request &&req) -> X509Certificate {
+    return X509Certificate::own(X509_new());
   }
 
   auto as_ptr() const noexcept -> X509 * { return m_ssl_type.get(); }
@@ -120,13 +126,11 @@ export class X509CertBuilder {
 private:
   X509 *cert;
 
-  X509CertBuilder() = default;
+  X509CertBuilder() : cert(X509_new()) {};
 
 public:
   static auto init() -> X509CertBuilder {
-    auto builder = X509CertBuilder();
-    builder.cert = X509_new();
-    return std::forward<X509CertBuilder>(*this);
+    return X509CertBuilder();
   }
 
   auto set_serial(bn::BigNum &&cert_id) -> X509CertBuilder {
