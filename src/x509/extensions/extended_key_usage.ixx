@@ -30,6 +30,14 @@ public:
     return eku;
   }
 
+  static auto from(std::span<EExtendedKeyUsage> &&value) -> KeyUsage {
+    auto ku = ExtendedKeyUsage();
+    for (auto val : value) {
+      ku.value |= static_cast<std::int32_t>(val);
+    }
+    return ku;
+  }
+
   auto to_string() const -> std::string {
     std::string str;
     if (value & XKU_SSL_SERVER) str += "SSL_SERVER, ";

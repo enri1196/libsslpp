@@ -3,10 +3,13 @@ module;
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <span>
 
 #include <openssl/x509v3.h>
 
 export module x509:ku_ext;
+
+import :x509_ext;
 
 namespace openssl::x509 {
 
@@ -28,6 +31,14 @@ public:
   static auto from(std::uint32_t value) -> KeyUsage {
     auto ku = KeyUsage();
     ku.value = value;
+    return ku;
+  }
+
+  static auto from(std::span<EKeyUsage> &&value) -> KeyUsage {
+    auto ku = KeyUsage();
+    for (auto val : value) {
+      ku.value |= static_cast<std::int32_t>(val);
+    }
     return ku;
   }
 
