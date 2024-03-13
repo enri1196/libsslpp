@@ -32,6 +32,7 @@ target_sources(sslpp
     src/x509/x509_ext.ixx
     src/bio.ixx
     src/bignum.ixx
+    src/base64.ixx
     src/evp_pkey.ixx
     src/ocsp/ocsp_response.ixx
     src/ocsp/ocsp_mod.ixx
