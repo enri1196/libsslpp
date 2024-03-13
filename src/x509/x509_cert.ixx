@@ -21,6 +21,7 @@ import bio;
 import evp;
 import :x509_name;
 import :x509_req;
+import :x509_ext;
 import :ku_ext;
 import :eku_ext;
 
@@ -71,23 +72,6 @@ public:
     }
     return X509Certificate(cert);
   }
-
-  // static auto from(X509Request &&req, const key::EvpPKey<key::Private> &key) -> X509Certificate {
-  //   // Create an X509 certificate
-  //   X509 *cert = X509_new();
-  //   X509_set_version(cert, 2); // X509 v3
-  //   ASN1_INTEGER_set(X509_get_serialNumber(cert), 1); // Set serial number
-
-
-
-  //   X509_set_pubkey(cert, pkey); // Set public key
-  //   X509_set_subject_name(cert, X509_REQ_get_subject_name(req)); // Set subject
-  //   X509_set_issuer_name(cert, X509_REQ_get_subject_name(req)); // Set issuer (self-signed)
-
-  //   // Sign the certificate
-  //   X509_sign(cert, pkey, EVP_sha256());
-  //   return X509Certificate::own(cert);
-  // }
 
   auto as_ptr() const noexcept -> X509 * { return m_ssl_type.get(); }
 
@@ -157,7 +141,7 @@ public:
     return std::forward<X509CertBuilder>(*this);
   }
 
-  auto set_serial(bn::BigNum &&cert_id) -> X509CertBuilder {
+  auto set_serial(asn1::Asn1Integer &&cert_id) -> X509CertBuilder {
     X509_set_serialNumber(cert, cert_id.as_ptr());
     return std::forward<X509CertBuilder>(*this);
   }
@@ -182,7 +166,13 @@ public:
     return std::forward<X509CertBuilder>(*this);
   }
 
-  auto build() -> X509Certificate {
+  auto add_ext(X509Extension &&ext) -> X509CertBuilder {
+    X509_add_ext(cert, ext.as_ptr(), -1);
+    return std::forward<X509CertBuilder>(*this);
+  }
+
+  auto build(key::EvpPKey<key::Private> &&pkey) -> X509Certificate {
+    X509_sign(cert, pkey.as_ptr(), EVP_sha256());
     return X509Certificate::own(cert);
   }
 
