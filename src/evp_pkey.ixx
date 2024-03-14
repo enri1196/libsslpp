@@ -3,6 +3,7 @@ module;
 #include <cstddef>
 #include <cstring>
 #include <memory>
+#include <span>
 #include <vector>
 
 #include <openssl/evp.h>
@@ -51,7 +52,25 @@ private:
       : m_ssl_type(ref, take_ownership ? &evp_own_free : &evp_ref_free) {}
 
 public:
+  static auto own(EVP_PKEY *ref) -> EvpPKey { return EvpPKey(ref); }
   static auto ref(EVP_PKEY *ref) -> EvpPKey { return EvpPKey(ref, false); }
+
+  static auto from(bio::SSLBio &&bio) -> EvpPKey {
+    auto key = d2i_PUBKEY_bio(bio.as_ptr(), nullptr);
+    if (key == nullptr) {
+      throw std::runtime_error("EvpPKey conversion from BIO Error");
+    }
+    return EvpPKey(key);
+  }
+
+  static auto from(std::span<uint8_t> &&bytes) -> EvpPKey {
+    const unsigned char *data = bytes.data();
+    auto key = d2i_PUBKEY(nullptr, &data, bytes.size());
+    if (key == nullptr) {
+      throw std::runtime_error("EvpPKey conversion from bytes Error");
+    }
+    return EvpPKey(key);
+  }
 
   auto as_ptr() const noexcept -> EVP_PKEY * { return m_ssl_type.get(); }
 
@@ -92,6 +111,23 @@ public:
     EVP_PKEY_keygen(evp_ctx, &m_key);
     EVP_PKEY_CTX_free(evp_ctx);
     return EvpPKey(m_key);
+  }
+
+  static auto from(bio::SSLBio &&bio) -> EvpPKey {
+    auto key = d2i_PrivateKey_bio(bio.as_ptr(), nullptr);
+    if (key == nullptr) {
+      throw std::runtime_error("EvpPKey conversion from BIO Error");
+    }
+    return EvpPKey(key);
+  }
+
+  static auto from(std::span<uint8_t> &&bytes) -> EvpPKey {
+    const unsigned char *data = bytes.data();
+    auto key = d2i_AutoPrivateKey(nullptr, &data, bytes.size());
+    if (key == nullptr) {
+      throw std::runtime_error("EvpPKey conversion from bytes Error");
+    }
+    return EvpPKey(key);
   }
 
   auto clone() -> EvpPKey {
