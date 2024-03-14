@@ -1,8 +1,10 @@
 module;
 
+#include <print>
 #include <memory>
 #include <string>
 #include <string_view>
+#include <stdexcept>
 
 #include <openssl/x509.h>
 
@@ -82,7 +84,7 @@ public:
         entry = "Email";
         break;
       case NameEntry::GivenName:
-        entry = "GivenName";
+        entry = "GN";
         break;
       case NameEntry::L:
         entry = "L";
@@ -100,7 +102,7 @@ public:
         entry = "ST";
         break;
       case NameEntry::Surname:
-        entry = "Surname";
+        entry = "SN";
         break;
       case NameEntry::UID:
         entry = "UID";
@@ -123,7 +125,10 @@ public:
 
   auto add_entry(NameEntry entry, string_view &&value) -> X509NameBuilder {
     auto field = X509NameEntry::from(entry).to_string().data();
-    X509_NAME_add_entry_by_txt(name, field, MBSTRING_ASC, reinterpret_cast<const uint8_t*>(value.data()), -1, -1, 0);
+    if (X509_NAME_add_entry_by_txt(name, field, MBSTRING_ASC, reinterpret_cast<const uint8_t*>(value.data()), -1, -1, 0) != 1) {
+      auto err = std::format("Failed to add entry [{}] to X509_NAME", field);
+      throw runtime_error(err);
+    }
     return std::forward<X509NameBuilder>(*this);
   }
 
