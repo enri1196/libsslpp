@@ -13,6 +13,8 @@ module;
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 
+using namespace std;
+
 export module x509:x509_cert;
 
 import bn;
@@ -32,7 +34,7 @@ static void x509_ref_free(X509 *x) {}
 
 export class X509Certificate {
 private:
-  std::shared_ptr<X509> m_ssl_type;
+  shared_ptr<X509> m_ssl_type;
 
   X509Certificate() = delete;
   explicit X509Certificate(X509 *cert, bool take_ownership = true)
@@ -44,31 +46,31 @@ public:
     return X509Certificate(ref, false);
   }
 
-  static auto from(openssl::bio::SSLBio &&bio_cert) -> X509Certificate {
+  static auto from(bio::SSLBio &&bio_cert) -> X509Certificate {
     auto cert = PEM_read_bio_X509(bio_cert.as_ptr(), nullptr, nullptr, nullptr);
     if (cert == nullptr) {
-      throw std::runtime_error("Cert conversion Error");
+      throw runtime_error("Cert conversion Error");
     }
     return X509Certificate(cert);
   }
 
-  static auto from(std::string_view &&cert_str) -> X509Certificate {
-    auto bio_str = openssl::bio::SSLBio::memory();
+  static auto from(string_view &&cert_str) -> X509Certificate {
+    auto bio_str = bio::SSLBio::memory();
     bio_str.write_mem(std::move(cert_str));
     auto *cert = PEM_read_bio_X509(bio_str.as_ptr(), nullptr, nullptr, nullptr);
     if (cert == nullptr) {
-      throw std::runtime_error("Cert conversion Error");
+      throw runtime_error("Cert conversion Error");
     }
     return X509Certificate(cert);
   }
 
-  static auto from(std::span<std::uint8_t> &&cert_bytes) -> X509Certificate {
-    auto bio_bytes = openssl::bio::SSLBio::memory();
+  static auto from(span<uint8_t> &&cert_bytes) -> X509Certificate {
+    auto bio_bytes = bio::SSLBio::memory();
     bio_bytes.write_mem(std::move(cert_bytes));
     auto *cert =
         PEM_read_bio_X509(bio_bytes.as_ptr(), nullptr, nullptr, nullptr);
     if (cert == nullptr) {
-      throw std::runtime_error("Cert conversion Error");
+      throw runtime_error("Cert conversion Error");
     }
     return X509Certificate(cert);
   }
@@ -106,7 +108,7 @@ public:
     return key::EvpPKey<key::Public>::ref(pub);
   }
 
-  auto ext_count() const -> std::int32_t {
+  auto ext_count() const -> int32_t {
     return X509_get_ext_count(this->as_ptr());
   }
 

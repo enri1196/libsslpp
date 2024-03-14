@@ -6,6 +6,8 @@ module;
 
 #include <openssl/ocsp.h>
 
+using namespace std;
+
 export module ocsp:ocsp_req;
 
 import evp;
@@ -20,7 +22,7 @@ export class OCSPRequestBuilder;
 
 export class OCSPRequest {
 private:
-  std::shared_ptr<OCSP_REQUEST> m_ssl_type;
+  shared_ptr<OCSP_REQUEST> m_ssl_type;
 
   OCSPRequest() = delete;
   OCSPRequest(OCSP_REQUEST *ref, bool take_ownership = true)
@@ -33,17 +35,17 @@ public:
   }
 
   template <class Builder>
-    requires std::is_same_v<Builder, OCSPRequestBuilder>
+    requires is_same_v<Builder, OCSPRequestBuilder>
   static auto builder() -> Builder {
     return Builder();
   }
 
-  static auto from(std::span<std::uint8_t> &&bytes) -> OCSPRequest {
+  static auto from(span<uint8_t> &&bytes) -> OCSPRequest {
     const unsigned char *bytes_data = bytes.data();
     auto req =
         d2i_OCSP_REQUEST(nullptr, &bytes_data, static_cast<long>(bytes.size()));
     if (req == nullptr) {
-      throw std::runtime_error("OCSPRequest conversion from bytes Error");
+      throw runtime_error("OCSPRequest conversion from bytes Error");
     }
     return OCSPRequest(req);
   }
@@ -62,7 +64,7 @@ public:
     return OCSPRequestBuilder();
   }
 
-  auto set_nonce(std::span<std::uint8_t> &&bytes) -> OCSPRequestBuilder {
+  auto set_nonce(span<uint8_t> &&bytes) -> OCSPRequestBuilder {
     OCSP_request_add1_nonce(req, const_cast<unsigned char *>(bytes.data()),
                             static_cast<int>(bytes.size()));
     return std::forward<OCSPRequestBuilder>(*this);

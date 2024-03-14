@@ -10,13 +10,15 @@ module;
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
 
+using namespace std;
+
 export module evp;
 
 import bio;
 
 namespace openssl::key {
 
-export enum class EcCurves : std::int32_t {
+export enum class EcCurves : int32_t {
   SECP_112R1 = NID_secp112r1,
   SECP_112R2 = NID_secp112r2,
   SECP_128R1 = NID_secp128r1,
@@ -40,12 +42,12 @@ export struct Private {};
 export struct Public {};
 
 export template <typename KeyType>
-  requires std::same_as<KeyType, Private> || std::same_as<KeyType, Public>
+  requires same_as<KeyType, Private> || same_as<KeyType, Public>
 class EvpPKey {};
 
 export template <> class EvpPKey<Public> {
 private:
-  std::shared_ptr<EVP_PKEY> m_ssl_type;
+  shared_ptr<EVP_PKEY> m_ssl_type;
 
   EvpPKey() = delete;
   explicit EvpPKey(EVP_PKEY *ref, bool take_ownership = true)
@@ -58,24 +60,24 @@ public:
   static auto from(bio::SSLBio &&bio) -> EvpPKey {
     auto key = d2i_PUBKEY_bio(bio.as_ptr(), nullptr);
     if (key == nullptr) {
-      throw std::runtime_error("EvpPKey conversion from BIO Error");
+      throw runtime_error("EvpPKey conversion from BIO Error");
     }
     return EvpPKey(key);
   }
 
-  static auto from(std::span<uint8_t> &&bytes) -> EvpPKey {
+  static auto from(span<uint8_t> &&bytes) -> EvpPKey {
     const unsigned char *data = bytes.data();
     auto key = d2i_PUBKEY(nullptr, &data, bytes.size());
     if (key == nullptr) {
-      throw std::runtime_error("EvpPKey conversion from bytes Error");
+      throw runtime_error("EvpPKey conversion from bytes Error");
     }
     return EvpPKey(key);
   }
 
   auto as_ptr() const noexcept -> EVP_PKEY * { return m_ssl_type.get(); }
 
-  auto to_string() const -> std::string {
-    auto bio = openssl::bio::SSLBio::memory();
+  auto to_string() const -> string {
+    auto bio = bio::SSLBio::memory();
     PEM_write_bio_PUBKEY(bio.as_ptr(), this->as_ptr());
     return bio.get_mem_ptr();
   }
@@ -83,7 +85,7 @@ public:
 
 export template <> class EvpPKey<Private> {
 private:
-  std::shared_ptr<EVP_PKEY> m_ssl_type;
+  shared_ptr<EVP_PKEY> m_ssl_type;
 
   EvpPKey() = delete;
   explicit EvpPKey(EVP_PKEY *ref, bool take_ownership = true)
@@ -116,16 +118,16 @@ public:
   static auto from(bio::SSLBio &&bio) -> EvpPKey {
     auto key = d2i_PrivateKey_bio(bio.as_ptr(), nullptr);
     if (key == nullptr) {
-      throw std::runtime_error("EvpPKey conversion from BIO Error");
+      throw runtime_error("EvpPKey conversion from BIO Error");
     }
     return EvpPKey(key);
   }
 
-  static auto from(std::span<uint8_t> &&bytes) -> EvpPKey {
+  static auto from(span<uint8_t> &&bytes) -> EvpPKey {
     const unsigned char *data = bytes.data();
     auto key = d2i_AutoPrivateKey(nullptr, &data, bytes.size());
     if (key == nullptr) {
-      throw std::runtime_error("EvpPKey conversion from bytes Error");
+      throw runtime_error("EvpPKey conversion from bytes Error");
     }
     return EvpPKey(key);
   }
@@ -137,15 +139,15 @@ public:
 
   auto as_ptr() const noexcept -> EVP_PKEY * { return m_ssl_type.get(); }
 
-  auto to_string() const -> std::string {
-    auto bio = openssl::bio::SSLBio::memory();
+  auto to_string() const -> string {
+    auto bio = bio::SSLBio::memory();
     PEM_write_bio_PrivateKey(bio.as_ptr(), this->as_ptr(), nullptr, nullptr, 0,
                              nullptr, nullptr);
     return bio.get_mem_ptr();
   }
 
   auto get_public() const -> EvpPKey<Public> {
-    auto bio = openssl::bio::SSLBio::memory();
+    auto bio = bio::SSLBio::memory();
     auto evp_ptr = this->as_ptr();
     PEM_write_bio_PUBKEY(bio.as_ptr(), evp_ptr);
     auto pub_key =
@@ -153,13 +155,12 @@ public:
     return EvpPKey<Public>::ref(pub_key);
   }
 
-  auto sign(const std::vector<std::uint8_t> &data) const
-      -> std::vector<std::uint8_t> {
+  auto sign(span<uint8_t> &&data) const
+      -> vector<uint8_t> {
     auto ctx = EVP_PKEY_CTX_new(this->as_ptr(), nullptr);
     EVP_PKEY_sign_init(ctx);
-    std::size_t sig_len = 0;
-    EVP_PKEY_sign(ctx, nullptr, &sig_len, data.data(), data.size());
-    auto sig_data = std::vector<std::uint8_t>(sig_len);
+    size_t sig_len = 0;
+    auto sig_data = vector<uint8_t>();
     EVP_PKEY_sign(ctx, sig_data.data(), &sig_len, data.data(), data.size());
     EVP_PKEY_CTX_free(ctx);
     return sig_data;

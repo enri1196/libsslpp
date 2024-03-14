@@ -7,6 +7,8 @@ module;
 
 #include <openssl/ocsp.h>
 
+using namespace std;
+
 export module ocsp:ocsp_resp;
 
 namespace openssl::ocsp {
@@ -16,7 +18,7 @@ static void oresp_ref_free(OCSP_RESPONSE *x) {}
 
 export class OCSPResponse {
 private:
-  std::shared_ptr<OCSP_RESPONSE> m_ssl_type;
+  shared_ptr<OCSP_RESPONSE> m_ssl_type;
 
   OCSPResponse() = delete;
   OCSPResponse(OCSP_RESPONSE *ref, bool take_ownership = true)
@@ -30,12 +32,12 @@ public:
     return OCSPResponse(ref, false);
   }
 
-  static auto from(std::span<std::uint8_t> &&bytes) -> OCSPResponse {
+  static auto from(span<uint8_t> &&bytes) -> OCSPResponse {
     const unsigned char *bytes_data = bytes.data();
     auto req = d2i_OCSP_RESPONSE(nullptr, &bytes_data,
                                  static_cast<long>(bytes.size()));
     if (req == nullptr) {
-      throw std::runtime_error("OCSPResponse conversion from bytes Error");
+      throw runtime_error("OCSPResponse conversion from bytes Error");
     }
     return OCSPResponse(req);
   }

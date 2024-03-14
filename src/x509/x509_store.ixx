@@ -6,6 +6,8 @@ module;
 #include <openssl/ossl_typ.h>
 #include <openssl/x509.h>
 
+using namespace std;
+
 export module x509:x509_store;
 
 import :x509_cert;
@@ -17,7 +19,7 @@ static void store_ref_free(X509_STORE *x) {}
 
 export class X509Store {
 private:
-  std::shared_ptr<X509_STORE> m_ssl_type;
+  shared_ptr<X509_STORE> m_ssl_type;
 
   X509Store() : m_ssl_type(X509_STORE_new(), &store_own_free) {}
   X509Store(X509_STORE *ref, bool take_ownership = true)
@@ -33,14 +35,9 @@ public:
 
   auto as_ptr() const noexcept -> X509_STORE * { return m_ssl_type.get(); }
 
-  // auto len() const -> std::size_t {
-  //   auto sk = X509_STORE_get0_objects(this->as_ptr());
-  //   return static_cast<std::size_t>(sk->stack.num);
-  // }
-
   auto add_cert(X509Certificate&& cert) const -> void {
     if (X509_STORE_add_cert(this->as_ptr(), cert.as_ptr()) <= 0) {
-      throw std::runtime_error("Could not add certificate");
+      throw runtime_error("Could not add certificate");
     }
   }
 };

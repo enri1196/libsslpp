@@ -7,6 +7,8 @@ module;
 
 #include <openssl/x509v3.h>
 
+using namespace std;
+
 export module x509:ku_ext;
 
 import :x509_ext;
@@ -15,7 +17,7 @@ namespace openssl::x509 {
 
 export class KeyUsage {
 public:
-  enum class EKeyUsage : std::uint32_t {
+  enum class EKeyUsage : uint32_t {
     DIGITAL_SIGNATURE   = KU_DIGITAL_SIGNATURE,
     NON_REPUDIATION     = KU_NON_REPUDIATION,
     KEY_ENCIPHERMENT    = KU_KEY_ENCIPHERMENT,
@@ -28,22 +30,22 @@ public:
     ABSENT              = UINT32_MAX
   };
 
-  static auto from(std::uint32_t value) -> KeyUsage {
+  static auto from(uint32_t value) -> KeyUsage {
     auto ku = KeyUsage();
     ku.value = value;
     return ku;
   }
 
-  static auto from(std::span<EKeyUsage> &&value) -> KeyUsage {
+  static auto from(span<EKeyUsage> &&value) -> KeyUsage {
     auto ku = KeyUsage();
     for (auto val : value) {
-      ku.value |= static_cast<std::int32_t>(val);
+      ku.value |= static_cast<int32_t>(val);
     }
     return ku;
   }
 
-  auto to_string() const -> std::string {
-    std::string str;
+  auto to_string() const -> string {
+    string str;
     if (value & KU_DIGITAL_SIGNATURE) str += "DIGITAL_SIGNATURE, ";
     if (value & KU_NON_REPUDIATION) str += "NON_REPUDIATION, ";
     if (value & KU_KEY_ENCIPHERMENT) str += "KEY_ENCIPHERMENT, ";
@@ -61,8 +63,8 @@ public:
     return str;
   }
 
-  auto to_vec() const -> std::vector<EKeyUsage> {
-    std::vector<EKeyUsage> vec;
+  auto to_vec() const -> vector<EKeyUsage> {
+    vector<EKeyUsage> vec;
     if (value & KU_DIGITAL_SIGNATURE) vec.push_back(EKeyUsage::DIGITAL_SIGNATURE);
     if (value & KU_NON_REPUDIATION) vec.push_back(EKeyUsage::NON_REPUDIATION);
     if (value & KU_KEY_ENCIPHERMENT) vec.push_back(EKeyUsage::KEY_ENCIPHERMENT);
@@ -77,7 +79,7 @@ public:
   }
 
 private:
-  std::int32_t value;
+  uint32_t value;
 };
 
 

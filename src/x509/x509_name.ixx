@@ -6,6 +6,8 @@ module;
 
 #include <openssl/x509.h>
 
+using namespace std;
+
 export module x509:x509_name;
 
 import bio;
@@ -19,7 +21,7 @@ export class X509NameBuilder;
 
 export class X509Name {
 private:
-  std::shared_ptr<X509_NAME> m_ssl_type;
+  shared_ptr<X509_NAME> m_ssl_type;
 
   X509Name() = delete;
   X509Name(X509_NAME *ref, bool take_ownership = true)
@@ -30,14 +32,14 @@ public:
   static auto ref(X509_NAME *ref) -> X509Name { return X509Name(ref, false); }
 
   template <class Builder = X509NameBuilder>
-  requires std::is_same_v<Builder, X509NameBuilder>
+  requires is_same_v<Builder, X509NameBuilder>
   static auto init() -> Builder {
     return Builder();
   }
 
   auto as_ptr() const noexcept -> X509_NAME * { return m_ssl_type.get(); }
 
-  auto to_string() -> std::string {
+  auto to_string() -> string {
     auto bio = bio::SSLBio::memory();
     X509_NAME_print_ex(bio.as_ptr(), this->as_ptr(), 0, XN_FLAG_RFC2253);
     return bio.get_mem_ptr();
@@ -63,8 +65,8 @@ public:
 
   constexpr operator EEntries() const { return value; }
 
-  auto to_string() const -> std::string_view {
-    std::string_view entry;
+  auto to_string() const -> string_view {
+    string_view entry;
     switch (value) {
       case EEntries::C:
         entry = "C";
@@ -103,9 +105,9 @@ private:
   X509_NAME* name{X509_NAME_new()};
 
 public:
-  auto add_entry(const X509NameEntry&& entry, const std::string_view&& value) -> X509NameBuilder {
+  auto add_entry(const X509NameEntry&& entry, string_view &&value) -> X509NameBuilder {
     auto field = entry.to_string().data();
-    X509_NAME_add_entry_by_txt(name, field, MBSTRING_ASC, reinterpret_cast<const std::uint8_t*>(value.data()), -1, -1, 0);
+    X509_NAME_add_entry_by_txt(name, field, MBSTRING_ASC, reinterpret_cast<const uint8_t*>(value.data()), -1, -1, 0);
     return std::forward<X509NameBuilder>(*this);
   }
 

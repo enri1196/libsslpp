@@ -7,13 +7,15 @@ module;
 
 #include <openssl/x509v3.h>
 
+using namespace std;
+
 export module x509:eku_ext;
 
 namespace openssl::x509 {
 
 export class ExtendedKeyUsage {
 public:
-  enum class EExtendedKeyUsage : std::uint32_t {
+  enum class EExtendedKeyUsage : uint32_t {
     SSL_SERVER  = XKU_SSL_SERVER,
     SSL_CLIENT  = XKU_SSL_CLIENT,
     SMIME       = XKU_SMIME,
@@ -25,22 +27,22 @@ public:
     ABSENT      = UINT32_MAX
   };
 
-  static auto from(std::uint32_t value) -> ExtendedKeyUsage {
+  static auto from(uint32_t value) -> ExtendedKeyUsage {
     auto eku = ExtendedKeyUsage();
     eku.value = value;
     return eku;
   }
 
-  static auto from(std::span<EExtendedKeyUsage> &&value) -> ExtendedKeyUsage {
+  static auto from(span<EExtendedKeyUsage> &&value) -> ExtendedKeyUsage {
     auto ku = ExtendedKeyUsage();
     for (auto val : value) {
-      ku.value |= static_cast<std::int32_t>(val);
+      ku.value |= static_cast<uint32_t>(val);
     }
     return ku;
   }
 
-  auto to_string() const -> std::string {
-    std::string str;
+  auto to_string() const -> string {
+    string str;
     if (value & XKU_SSL_SERVER) str += "SSL_SERVER, ";
     if (value & XKU_SSL_CLIENT) str += "SSL_CLIENT, ";
     if (value & XKU_SMIME) str += "SMIME, ";
@@ -57,8 +59,8 @@ public:
     return str;
   }
 
-  auto to_vec() const -> std::vector<EExtendedKeyUsage> {
-    std::vector<EExtendedKeyUsage> vec;
+  auto to_vec() const -> vector<EExtendedKeyUsage> {
+    vector<EExtendedKeyUsage> vec;
     if (value & XKU_SSL_SERVER) vec.push_back(EExtendedKeyUsage::SSL_SERVER);
     if (value & XKU_SSL_CLIENT) vec.push_back(EExtendedKeyUsage::SSL_CLIENT);
     if (value & XKU_SMIME) vec.push_back(EExtendedKeyUsage::SMIME);
@@ -72,8 +74,7 @@ public:
   }
 
 private:
-  std::int32_t value;
+  uint32_t value;
 };
-
 
 }

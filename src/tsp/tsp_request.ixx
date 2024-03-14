@@ -6,6 +6,8 @@ module;
 #include <openssl/safestack.h>
 #include <openssl/ts.h>
 
+using namespace std;
+
 export module tsp:tsp_req;
 
 import asn1;
@@ -19,7 +21,7 @@ export class TSRequestBuilder;
 
 export class TSRequest {
 private:
-  std::shared_ptr<TS_REQ> m_ssl_type;
+  shared_ptr<TS_REQ> m_ssl_type;
 
   TSRequest() = delete;
   TSRequest(TS_REQ *ref, bool take_ownership = true)
@@ -34,12 +36,12 @@ public:
   auto as_ptr() const noexcept -> TS_REQ* { return m_ssl_type.get(); }
 
   template <class Builder = TSRequestBuilder>
-  requires std::is_same_v<Builder, TSRequestBuilder>
+  requires is_same_v<Builder, TSRequestBuilder>
   static auto init() -> Builder {
     return Builder();
   }
 
-  static auto from(std::span<std::uint8_t>&& bytes) -> TSRequest {
+  static auto from(span<uint8_t>&& bytes) -> TSRequest {
     const unsigned char *bytes_data = bytes.data();
     auto req = d2i_TS_REQ(nullptr, &bytes_data, static_cast<long>(bytes.size()));
     if (req == nullptr) {

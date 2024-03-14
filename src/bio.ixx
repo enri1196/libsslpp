@@ -10,6 +10,8 @@ module;
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
 
+using namespace std;
+
 export module bio;
 
 namespace openssl::bio {
@@ -19,7 +21,7 @@ static void bio_ref_free(BIO *x) {}
 
 export class SSLBio {
 private:
-  std::shared_ptr<BIO> m_ssl_type;
+  shared_ptr<BIO> m_ssl_type;
 
   SSLBio() : m_ssl_type(BIO_new(BIO_s_mem()), &bio_own_free) {}
   explicit SSLBio(BIO *bio, bool take_ownership = true)
@@ -31,39 +33,39 @@ public:
 
   static auto memory() -> SSLBio { return SSLBio(); }
 
-  static auto open_file(const std::filesystem::path &path) -> SSLBio {
+  static auto open_file(const filesystem::path &path) -> SSLBio {
     auto *bio_ptr = BIO_new_file(path.c_str(), "rb");
     if (bio_ptr == nullptr) {
-      throw std::runtime_error("BIO File Not Found");
+      throw runtime_error("BIO File Not Found");
     }
     return SSLBio(bio_ptr);
   }
 
   auto as_ptr() const noexcept -> BIO * { return m_ssl_type.get(); }
 
-  auto get_mem_ptr() const -> std::string {
+  auto get_mem_ptr() const -> string {
     BUF_MEM *bptr = nullptr;
     BIO_get_mem_ptr(this->as_ptr(), &bptr);
     BIO_set_close(this->as_ptr(), BIO_NOCLOSE);
     if (bptr == nullptr) {
-      throw std::runtime_error("BIO Error MemPtr");
+      throw runtime_error("BIO Error MemPtr");
     }
-    return std::string(bptr->data, bptr->length);
+    return string(bptr->data, bptr->length);
   }
 
-  auto write_mem(std::string_view &&buf) -> void {
+  auto write_mem(string_view &&buf) -> void {
     auto length = static_cast<int>(buf.length());
     int result = BIO_write(this->as_ptr(), buf.data(), length);
     if (result < length) {
-      throw std::runtime_error("BIO Mem Write Error");
+      throw runtime_error("BIO Mem Write Error");
     }
   }
 
-  auto write_mem(std::span<std::uint8_t> &&buf) -> void {
+  auto write_mem(span<uint8_t> &&buf) -> void {
     int result =
         BIO_write(this->as_ptr(), buf.data(), static_cast<int>(buf.size()));
     if (result < static_cast<int>(buf.size())) {
-      throw std::runtime_error("BIO Mem Write Error");
+      throw runtime_error("BIO Mem Write Error");
     }
   }
 

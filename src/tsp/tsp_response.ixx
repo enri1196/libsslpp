@@ -5,6 +5,8 @@ module;
 
 #include <openssl/ts.h>
 
+using namespace std;
+
 export module tsp:tsp_resp;
 
 namespace openssl::ts {
@@ -14,7 +16,7 @@ static void tresp_ref_free(TS_RESP *x) {}
 
 export class TSResponse {
 private:
-  std::shared_ptr<TS_RESP> m_ssl_type;
+  shared_ptr<TS_RESP> m_ssl_type;
 
   TSResponse() = delete;
   TSResponse(TS_RESP *ref, bool take_ownership = true)
@@ -24,11 +26,11 @@ public:
   static auto own(TS_RESP *ref) -> TSResponse { return TSResponse(ref); }
   static auto ref(TS_RESP *ref) -> TSResponse { return TSResponse(ref, false); }
 
-  static auto from(std::span<std::uint8_t> &&bytes) -> TSResponse {
+  static auto from(span<uint8_t> &&bytes) -> TSResponse {
     const unsigned char *bytes_data = bytes.data();
     auto resp = d2i_TS_RESP(nullptr, &bytes_data, bytes.size());
     if (resp == nullptr) {
-      throw std::runtime_error("TSResponse conversion from bytes Error");
+      throw runtime_error("TSResponse conversion from bytes Error");
     }
     return {TSResponse(resp)};
   }
