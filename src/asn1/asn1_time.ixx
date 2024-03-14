@@ -1,5 +1,6 @@
 module;
 
+#include <ctime>
 #include <chrono>
 #include <memory>
 #include <string_view>
@@ -28,8 +29,18 @@ private:
       : m_ssl_type(time, take_ownership ? &at_own_free : &at_ref_free) {}
 
 public:
+  static auto own(ASN1_TIME *ref) -> Asn1Time {
+    return Asn1Time(ref, false);
+  }
   static auto ref(ASN1_TIME *ref) -> Asn1Time {
     return Asn1Time(ref, false);
+  }
+
+  static auto now() -> Asn1Time {
+    auto t = ASN1_TIME_new();
+    time_t current_time = time(nullptr);
+    ASN1_TIME_set(t, current_time);
+    return Asn1Time::own(t);
   }
 
   static auto from(const string_view &&time) -> Asn1Time {
