@@ -3,6 +3,7 @@ module;
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <span>
 
 #include <openssl/x509v3.h>
 
@@ -30,7 +31,7 @@ public:
     return eku;
   }
 
-  static auto from(std::span<EExtendedKeyUsage> &&value) -> KeyUsage {
+  static auto from(std::span<EExtendedKeyUsage> &&value) -> ExtendedKeyUsage {
     auto ku = ExtendedKeyUsage();
     for (auto val : value) {
       ku.value |= static_cast<std::int32_t>(val);
