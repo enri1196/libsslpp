@@ -3,11 +3,19 @@ project(sslpp_module CXX)
 
 # Turning off extensions avoids an issue with the clang 16 compiler
 # clang 17 and greater can avoid this setting
-set(CMAKE_CXX_EXTENSIONS OFF)
-# Set the version of C++ for the project
+# set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD 23)
-
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 set(OPENSSL_USE_STATIC_LIBS TRUE)
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wconversion -Wimplicit-fallthrough")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
 find_package(OpenSSL REQUIRED)
 add_library(sslpp)
 
@@ -38,6 +46,7 @@ target_sources(sslpp
     src/ocsp/ocsp_mod.ixx
     src/ocsp/ocsp_request.ixx
 )
+
 # Create an executable
 add_executable(test_bin src/main.cxx)
 # Link to the library foo
