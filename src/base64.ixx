@@ -21,7 +21,7 @@ auto decode(std::string_view message) -> std::string {
     return "";
 
   size_t decoded_size =  (((message.length() + 1) * 3) / 4);
-  std::vector<uint8_t> message_buffer(decoded_size);
+  std::vector<char> message_buffer(decoded_size);
 
   int length_decoded = EVP_DecodeBlock(reinterpret_cast<unsigned char*>(message_buffer.data()),
                                         reinterpret_cast<const unsigned char*>(message.data()),
@@ -43,7 +43,7 @@ auto base64_encode(std::string_view message) -> std::string {
     return "";
 
   size_t encoded_size = (1 + ((message.length() + 2) / 3 * 4));
-  std::vector<uint8_t> message_buffer(encoded_size);
+  std::vector<char> message_buffer(encoded_size);
 
   int length_encoded = EVP_EncodeBlock(reinterpret_cast<unsigned char*>(message_buffer.data()),
                                         reinterpret_cast<const unsigned char*>(message.data()),
