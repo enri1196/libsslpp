@@ -1,6 +1,7 @@
 module;
 
 #include <memory>
+#include <span>
 #include <string>
 
 #include <openssl/bn.h>
@@ -35,6 +36,14 @@ public:
   //   }
   //   return BigNum(bn);
   // }
+
+  static auto from(std::span<uint8_t> &&bytes) -> BigNum {
+    auto bn = BN_bin2bn(bytes.data(), bytes.size(), nullptr);
+    if (bn == nullptr) {
+      throw std::runtime_error("BigNum conversion from bytes Error");
+    }
+    return bn;
+  }
 
   auto operator<=>(const BigNum &other) noexcept -> std::strong_ordering {
     switch (BN_cmp(this->as_ptr(), other.as_ptr())) {
