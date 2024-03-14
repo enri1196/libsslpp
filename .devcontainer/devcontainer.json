@@ -22,7 +22,8 @@
 				"llvm-vs-code-extensions.vscode-clangd",
 				"twxs.cmake",
 				"josetr.cmake-language-support-vscode",
-				"ms-vscode.cmake-tools"
+				"ms-vscode.cmake-tools",
+				"eamodio.gitlens"
 			]
 		}
 	}
