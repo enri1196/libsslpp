@@ -168,6 +168,11 @@ public:
     return std::forward<X509CertBuilder>(*this);
   }
 
+  auto set_pub_key(key::EvpPKey<key::Public> &&key) -> X509CertBuilder {
+    X509_set_pubkey(cert, key.as_ptr());
+    return std::forward<X509CertBuilder>(*this);
+  }
+
   auto add_ext(X509Extension &&ext) -> X509CertBuilder {
     X509_add_ext(cert, ext.as_ptr(), -1);
     return std::forward<X509CertBuilder>(*this);
