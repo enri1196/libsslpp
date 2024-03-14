@@ -17,8 +17,6 @@ namespace openssl::x509 {
 static void xname_own_free(X509_NAME *x) { X509_NAME_free(x); }
 static void xname_ref_free(X509_NAME *) {}
 
-export class X509NameBuilder;
-
 export class X509Name {
 private:
   shared_ptr<X509_NAME> m_ssl_type;
@@ -31,12 +29,6 @@ public:
   static auto own(X509_NAME *ref) -> X509Name { return X509Name(ref); }
   static auto ref(X509_NAME *ref) -> X509Name { return X509Name(ref, false); }
 
-  template <class Builder = X509NameBuilder>
-  requires is_same_v<Builder, X509NameBuilder>
-  static auto init() -> Builder {
-    return Builder();
-  }
-
   auto as_ptr() const noexcept -> X509_NAME * { return m_ssl_type.get(); }
 
   auto to_string() -> string {
@@ -46,79 +38,91 @@ public:
   }
 };
 
-export class X509NameEntry {
-public:
-  enum EEntries {
-    C,
-    CN,
-    DC,
-    Email,
-    GivenName,
-    L,
-    O,
-    OU,
-    SN,
-    ST,
-    Surname,
-    UID,
-  };
+export enum class NameEntry {
+  C,
+  CN,
+  DC,
+  Email,
+  GivenName,
+  L,
+  O,
+  OU,
+  SN,
+  ST,
+  Surname,
+  UID,
+};
 
-  constexpr operator EEntries() const { return value; }
+export class X509NameEntry {
+private:
+  NameEntry value;
+
+  X509NameEntry() = default;
+
+public:
+  static auto from(NameEntry entry) -> X509NameEntry {
+    auto ent = X509NameEntry();
+    ent.value = entry;
+    return ent;
+  }
 
   auto to_string() const -> string_view {
     string_view entry;
     switch (value) {
-      case EEntries::C:
+      case NameEntry::C:
         entry = "C";
         break;
-      case EEntries::CN:
+      case NameEntry::CN:
         entry = "CN";
         break;
-      case EEntries::DC:
+      case NameEntry::DC:
         entry = "DC";
         break;
-      case EEntries::Email:
+      case NameEntry::Email:
         entry = "Email";
         break;
-      case EEntries::GivenName:
+      case NameEntry::GivenName:
         entry = "GivenName";
         break;
-      case EEntries::L:
+      case NameEntry::L:
         entry = "L";
         break;
-      case EEntries::O:
+      case NameEntry::O:
         entry = "O";
         break;
-      case EEntries::OU:
+      case NameEntry::OU:
         entry = "OU";
         break;
-      case EEntries::SN:
+      case NameEntry::SN:
         entry = "SN";
         break;
-      case EEntries::ST:
+      case NameEntry::ST:
         entry = "ST";
         break;
-      case EEntries::Surname:
+      case NameEntry::Surname:
         entry = "Surname";
         break;
-      case EEntries::UID:
+      case NameEntry::UID:
         entry = "UID";
         break;
     }
     return entry;
   }
-
-private:
-  EEntries value;
 };
 
 export class X509NameBuilder {
 private:
   X509_NAME* name{X509_NAME_new()};
 
+  X509NameBuilder() {}
+
 public:
-  auto add_entry(const X509NameEntry&& entry, string_view &&value) -> X509NameBuilder {
-    auto field = entry.to_string().data();
+  static auto init() -> X509NameBuilder {
+    return X509NameBuilder();
+  }
+
+  auto add_entry(NameEntry entry, string_view &&value) -> X509NameBuilder {
+    auto field = X509NameEntry::from(entry).to_string().data();
     X509_NAME_add_entry_by_txt(name, field, MBSTRING_ASC, reinterpret_cast<const uint8_t*>(value.data()), -1, -1, 0);
     return std::forward<X509NameBuilder>(*this);
   }
