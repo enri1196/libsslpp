@@ -18,7 +18,7 @@ import bn;
 namespace openssl::asn1 {
 
 static void ai_own_free(ASN1_INTEGER *x) { ASN1_INTEGER_free(x); }
-static void ai_ref_free(ASN1_INTEGER *x) {}
+static void ai_ref_free(ASN1_INTEGER *) {}
 
 export class Asn1Integer {
 private:

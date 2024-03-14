@@ -13,7 +13,7 @@ export module x509:x509_req;
 namespace openssl::x509 {
 
 static void xreq_own_free(X509_REQ *x) { X509_REQ_free(x); }
-static void xreq_ref_free(X509_REQ *x) {}
+static void xreq_ref_free(X509_REQ *) {}
 
 export class X509Request {
 private:

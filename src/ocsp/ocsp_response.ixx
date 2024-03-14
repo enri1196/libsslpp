@@ -14,7 +14,7 @@ export module ocsp:ocsp_resp;
 namespace openssl::ocsp {
 
 static void oresp_own_free(OCSP_RESPONSE *x) { OCSP_RESPONSE_free(x); }
-static void oresp_ref_free(OCSP_RESPONSE *x) {}
+static void oresp_ref_free(OCSP_RESPONSE *) {}
 
 export class OCSPResponse {
 private:

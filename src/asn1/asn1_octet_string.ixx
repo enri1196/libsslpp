@@ -14,7 +14,7 @@ export module asn1:octet_string;
 namespace openssl::asn1 {
 
 static void ao_own_free(ASN1_OCTET_STRING *x) { ASN1_OCTET_STRING_free(x); }
-static void ao_ref_free(ASN1_OCTET_STRING *x) {}
+static void ao_ref_free(ASN1_OCTET_STRING *) {}
 
 export class Asn1OctetString {
 private:

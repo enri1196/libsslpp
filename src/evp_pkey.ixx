@@ -36,7 +36,7 @@ export enum class Rsa {
 };
 
 static void evp_own_free(EVP_PKEY *x) { EVP_PKEY_free(x); }
-static void evp_ref_free(EVP_PKEY *x) {}
+static void evp_ref_free(EVP_PKEY *) {}
 
 export struct Private {};
 export struct Public {};
@@ -67,7 +67,7 @@ public:
 
   static auto from(span<uint8_t> &&bytes) -> EvpPKey {
     const unsigned char *data = bytes.data();
-    auto key = d2i_PUBKEY(nullptr, &data, bytes.size());
+    auto key = d2i_PUBKEY(nullptr, &data, (long)bytes.size());
     if (key == nullptr) {
       throw runtime_error("EvpPKey conversion from bytes Error");
     }
@@ -125,16 +125,11 @@ public:
 
   static auto from(span<uint8_t> &&bytes) -> EvpPKey {
     const unsigned char *data = bytes.data();
-    auto key = d2i_AutoPrivateKey(nullptr, &data, bytes.size());
+    auto key = d2i_AutoPrivateKey(nullptr, &data, (long)bytes.size());
     if (key == nullptr) {
       throw runtime_error("EvpPKey conversion from bytes Error");
     }
     return EvpPKey(key);
-  }
-
-  auto clone() -> EvpPKey {
-    auto clone = EVP_PKEY_up_ref(this->as_ptr());
-    return EvpPKey(this->as_ptr());
   }
 
   auto as_ptr() const noexcept -> EVP_PKEY * { return m_ssl_type.get(); }

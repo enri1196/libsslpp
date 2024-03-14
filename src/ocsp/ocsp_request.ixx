@@ -16,7 +16,7 @@ import x509;
 namespace openssl::ocsp {
 
 static void oreq_own_free(OCSP_REQUEST *x) { OCSP_REQUEST_free(x); }
-static void oreq_ref_free(OCSP_REQUEST *x) {}
+static void oreq_ref_free(OCSP_REQUEST *) {}
 
 export class OCSPRequestBuilder;
 

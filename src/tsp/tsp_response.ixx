@@ -12,7 +12,7 @@ export module tsp:tsp_resp;
 namespace openssl::ts {
 
 static void tresp_own_free(TS_RESP *x) { TS_RESP_free(x); }
-static void tresp_ref_free(TS_RESP *x) {}
+static void tresp_ref_free(TS_RESP *) {}
 
 export class TSResponse {
 private:
@@ -28,7 +28,7 @@ public:
 
   static auto from(span<uint8_t> &&bytes) -> TSResponse {
     const unsigned char *bytes_data = bytes.data();
-    auto resp = d2i_TS_RESP(nullptr, &bytes_data, bytes.size());
+    auto resp = d2i_TS_RESP(nullptr, &bytes_data, (long)bytes.size());
     if (resp == nullptr) {
       throw runtime_error("TSResponse conversion from bytes Error");
     }

@@ -17,7 +17,7 @@ export module bio;
 namespace openssl::bio {
 
 static void bio_own_free(BIO *x) { BIO_free_all(x); }
-static void bio_ref_free(BIO *x) {}
+static void bio_ref_free(BIO *) {}
 
 export class SSLBio {
 private:

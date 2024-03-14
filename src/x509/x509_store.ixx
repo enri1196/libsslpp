@@ -15,7 +15,7 @@ import :x509_cert;
 namespace openssl::x509 {
 
 static void store_own_free(X509_STORE *x) { X509_STORE_free(x); }
-static void store_ref_free(X509_STORE *x) {}
+static void store_ref_free(X509_STORE *) {}
 
 export class X509Store {
 private:

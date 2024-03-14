@@ -30,7 +30,7 @@ import :eku_ext;
 namespace openssl::x509 {
 
 static void x509_own_free(X509 *x) { X509_free(x); }
-static void x509_ref_free(X509 *x) {}
+static void x509_ref_free(X509 *) {}
 
 export class X509Certificate {
 private:

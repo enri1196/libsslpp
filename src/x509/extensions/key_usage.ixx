@@ -4,6 +4,7 @@ module;
 #include <string>
 #include <vector>
 #include <span>
+#include <stdexcept>
 
 #include <openssl/x509v3.h>
 
@@ -39,7 +40,7 @@ public:
   static auto from(span<EKeyUsage> &&value) -> KeyUsage {
     auto ku = KeyUsage();
     for (auto val : value) {
-      ku.value |= static_cast<int32_t>(val);
+      ku.value |= static_cast<uint32_t>(val);
     }
     return ku;
   }
@@ -65,22 +66,35 @@ public:
 
   auto to_vec() const -> vector<EKeyUsage> {
     vector<EKeyUsage> vec;
-    if (value & KU_DIGITAL_SIGNATURE) vec.push_back(EKeyUsage::DIGITAL_SIGNATURE);
-    if (value & KU_NON_REPUDIATION) vec.push_back(EKeyUsage::NON_REPUDIATION);
-    if (value & KU_KEY_ENCIPHERMENT) vec.push_back(EKeyUsage::KEY_ENCIPHERMENT);
-    if (value & KU_DATA_ENCIPHERMENT) vec.push_back(EKeyUsage::DATA_ENCIPHERMENT);
-    if (value & KU_KEY_AGREEMENT) vec.push_back(EKeyUsage::KEY_AGREEMENT);
-    if (value & KU_KEY_CERT_SIGN) vec.push_back(EKeyUsage::KEY_CERT_SIGN);
-    if (value & KU_CRL_SIGN) vec.push_back(EKeyUsage::CRL_SIGN);
-    if (value & KU_ENCIPHER_ONLY) vec.push_back(EKeyUsage::ENCIPHER_ONLY);
-    if (value & KU_DECIPHER_ONLY) vec.push_back(EKeyUsage::DECIPHER_ONLY);
-    if (value & UINT32_MAX) vec.push_back(EKeyUsage::ABSENT);
+    if (value & KU_DIGITAL_SIGNATURE)   vec.push_back(EKeyUsage::DIGITAL_SIGNATURE);
+    if (value & KU_NON_REPUDIATION)     vec.push_back(EKeyUsage::NON_REPUDIATION);
+    if (value & KU_KEY_ENCIPHERMENT)    vec.push_back(EKeyUsage::KEY_ENCIPHERMENT);
+    if (value & KU_DATA_ENCIPHERMENT)   vec.push_back(EKeyUsage::DATA_ENCIPHERMENT);
+    if (value & KU_KEY_AGREEMENT)       vec.push_back(EKeyUsage::KEY_AGREEMENT);
+    if (value & KU_KEY_CERT_SIGN)       vec.push_back(EKeyUsage::KEY_CERT_SIGN);
+    if (value & KU_CRL_SIGN)            vec.push_back(EKeyUsage::CRL_SIGN);
+    if (value & KU_ENCIPHER_ONLY)       vec.push_back(EKeyUsage::ENCIPHER_ONLY);
+    if (value & KU_DECIPHER_ONLY)       vec.push_back(EKeyUsage::DECIPHER_ONLY);
+    if (value & UINT32_MAX)             vec.push_back(EKeyUsage::ABSENT);
     return vec;
+  }
+
+  auto to_x509_ext() -> X509Extension {
+    X509V3_CTX ctx;
+    int nid = static_cast<int>(X509V3ExtensionNid::KEY_USAGE);
+    X509V3_set_ctx(&ctx, nullptr, nullptr, nullptr, nullptr, 0);
+
+    auto data = this->to_string();
+    X509_EXTENSION *ext = X509V3_EXT_conf_nid(nullptr, &ctx, nid, data.c_str());
+
+    if (ext == nullptr) {
+      throw runtime_error("Error creating key_usage extension");
+    }
+    return X509Extension::own(ext);
   }
 
 private:
   uint32_t value;
 };
-
 
 }

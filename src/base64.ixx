@@ -27,7 +27,7 @@ auto decode(string_view message) -> string {
 
   int length_decoded = EVP_DecodeBlock(reinterpret_cast<unsigned char*>(message_buffer.data()),
                                         reinterpret_cast<const unsigned char*>(message.data()),
-                                        message.length());
+                                        static_cast<int32_t>(message.length()));
 
   if(length_decoded <= 0)
     return "";
@@ -49,7 +49,7 @@ auto base64_encode(string_view message) -> string {
 
   int length_encoded = EVP_EncodeBlock(reinterpret_cast<unsigned char*>(message_buffer.data()),
                                         reinterpret_cast<const unsigned char*>(message.data()),
-                                        message.length());
+                                        static_cast<int32_t>(message.length()));
 
   if(length_encoded <= 0)
     return "";

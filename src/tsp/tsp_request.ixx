@@ -15,7 +15,7 @@ import asn1;
 namespace openssl::ts {
 
 static void treq_own_free(TS_REQ *x) { TS_REQ_free(x); }
-static void treq_ref_free(TS_REQ *x) {}
+static void treq_ref_free(TS_REQ *) {}
 
 export class TSRequestBuilder;
 

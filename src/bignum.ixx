@@ -16,7 +16,7 @@ export module bn;
 namespace openssl::bn {
 
 static void bn_own_free(BIGNUM *x) { BN_free(x); }
-static void bn_ref_free(BIGNUM *x) {}
+static void bn_ref_free(BIGNUM *) {}
 
 export class BigNum {
 private:
@@ -40,7 +40,7 @@ public:
   // }
 
   static auto from(span<uint8_t> &&bytes) -> BigNum {
-    auto bn = BN_bin2bn(bytes.data(), bytes.size(), nullptr);
+    auto bn = BN_bin2bn(bytes.data(), static_cast<int32_t>(bytes.size()), nullptr);
     if (bn == nullptr) {
       throw runtime_error("BigNum conversion from bytes Error");
     }

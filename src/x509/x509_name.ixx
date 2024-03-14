@@ -15,7 +15,7 @@ import bio;
 namespace openssl::x509 {
 
 static void xname_own_free(X509_NAME *x) { X509_NAME_free(x); }
-static void xname_ref_free(X509_NAME *x) {}
+static void xname_ref_free(X509_NAME *) {}
 
 export class X509NameBuilder;
 
@@ -70,28 +70,40 @@ public:
     switch (value) {
       case EEntries::C:
         entry = "C";
+        break;
       case EEntries::CN:
         entry = "CN";
+        break;
       case EEntries::DC:
         entry = "DC";
+        break;
       case EEntries::Email:
         entry = "Email";
+        break;
       case EEntries::GivenName:
         entry = "GivenName";
+        break;
       case EEntries::L:
         entry = "L";
+        break;
       case EEntries::O:
         entry = "O";
+        break;
       case EEntries::OU:
         entry = "OU";
+        break;
       case EEntries::SN:
         entry = "SN";
+        break;
       case EEntries::ST:
         entry = "ST";
+        break;
       case EEntries::Surname:
         entry = "Surname";
+        break;
       case EEntries::UID:
         entry = "UID";
+        break;
     }
     return entry;
   }

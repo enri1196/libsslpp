@@ -17,7 +17,7 @@ import bio;
 namespace openssl::asn1 {
 
 static void at_own_free(ASN1_TIME *x) { ASN1_TIME_free(x); }
-static void at_ref_free(ASN1_TIME *x) {}
+static void at_ref_free(ASN1_TIME *) {}
 
 export class Asn1Time {
 private:

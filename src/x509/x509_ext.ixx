@@ -18,7 +18,7 @@ import asn1;
 namespace openssl::x509 {
 
 static void xext_own_free(X509_EXTENSION *x) { X509_EXTENSION_free(x); }
-static void xext_ref_free(X509_EXTENSION *x) {}
+static void xext_ref_free(X509_EXTENSION *) {}
 
 enum class X509V3ExtensionNid : uint32_t {
   SUBJECT_ALT_NAME              = NID_subject_alt_name,
