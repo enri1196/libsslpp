@@ -5,6 +5,7 @@ module;
 #include <vector>
 #include <span>
 #include <stdexcept>
+#include <print>
 
 #include <openssl/x509v3.h>
 
@@ -16,28 +17,28 @@ import :x509_ext;
 
 namespace openssl::x509 {
 
+export enum class EKeyUsage : uint32_t {
+  DIGITAL_SIGNATURE   = KU_DIGITAL_SIGNATURE,
+  NON_REPUDIATION     = KU_NON_REPUDIATION,
+  KEY_ENCIPHERMENT    = KU_KEY_ENCIPHERMENT,
+  DATA_ENCIPHERMENT   = KU_DATA_ENCIPHERMENT,
+  KEY_AGREEMENT       = KU_KEY_AGREEMENT,
+  KEY_CERT_SIGN       = KU_KEY_CERT_SIGN,
+  CRL_SIGN            = KU_CRL_SIGN,
+  ENCIPHER_ONLY       = KU_ENCIPHER_ONLY,
+  DECIPHER_ONLY       = KU_DECIPHER_ONLY,
+  ABSENT              = UINT32_MAX
+};
+
 export class KeyUsage {
 public:
-  enum class EKeyUsage : uint32_t {
-    DIGITAL_SIGNATURE   = KU_DIGITAL_SIGNATURE,
-    NON_REPUDIATION     = KU_NON_REPUDIATION,
-    KEY_ENCIPHERMENT    = KU_KEY_ENCIPHERMENT,
-    DATA_ENCIPHERMENT   = KU_DATA_ENCIPHERMENT,
-    KEY_AGREEMENT       = KU_KEY_AGREEMENT,
-    KEY_CERT_SIGN       = KU_KEY_CERT_SIGN,
-    CRL_SIGN            = KU_CRL_SIGN,
-    ENCIPHER_ONLY       = KU_ENCIPHER_ONLY,
-    DECIPHER_ONLY       = KU_DECIPHER_ONLY,
-    ABSENT              = UINT32_MAX
-  };
-
   static auto from(uint32_t value) -> KeyUsage {
     auto ku = KeyUsage();
     ku.value = value;
     return ku;
   }
 
-  static auto from(span<EKeyUsage> &&value) -> KeyUsage {
+  static auto from(vector<EKeyUsage> &&value) -> KeyUsage {
     auto ku = KeyUsage();
     for (auto val : value) {
       ku.value |= static_cast<uint32_t>(val);
@@ -47,19 +48,23 @@ public:
 
   auto to_string() const -> string {
     string str;
-    if (value & KU_DIGITAL_SIGNATURE) str += "DIGITAL_SIGNATURE, ";
-    if (value & KU_NON_REPUDIATION) str += "NON_REPUDIATION, ";
-    if (value & KU_KEY_ENCIPHERMENT) str += "KEY_ENCIPHERMENT, ";
-    if (value & KU_DATA_ENCIPHERMENT) str += "DATA_ENCIPHERMENT, ";
-    if (value & KU_KEY_AGREEMENT) str += "KEY_AGREEMENT, ";
-    if (value & KU_KEY_CERT_SIGN) str += "KEY_CERT_SIGN, ";
-    if (value & KU_CRL_SIGN) str += "CRL_SIGN, ";
-    if (value & KU_ENCIPHER_ONLY) str += "ENCIPHER_ONLY, ";
-    if (value & KU_DECIPHER_ONLY) str += "DECIPHER_ONLY, ";
-    if (value & UINT32_MAX) str += "ABSENT, ";
 
-    // Remove the trailing comma and space
-    if (!str.empty()) str.resize(str.size() - 2);
+    if (value == UINT32_MAX) {
+      str += "ABSENT";
+    } else {
+      if (value & KU_DIGITAL_SIGNATURE) str += "digitalSignature,";
+      if (value & KU_NON_REPUDIATION) str += "nonRepudiation,";
+      if (value & KU_KEY_ENCIPHERMENT) str += "keyEncipherment,";
+      if (value & KU_DATA_ENCIPHERMENT) str += "dataEncipherment,";
+      if (value & KU_KEY_AGREEMENT) str += "keyAgreement,";
+      if (value & KU_KEY_CERT_SIGN) str += "keyCertSign,";
+      if (value & KU_CRL_SIGN) str += "cRLSign,";
+      if (value & KU_ENCIPHER_ONLY) str += "encipherOnly,";
+      if (value & KU_DECIPHER_ONLY) str += "decipherOnly,";
+      if (!str.empty()) {
+        str.resize(str.size() - 1);
+      }
+    }
 
     return str;
   }
