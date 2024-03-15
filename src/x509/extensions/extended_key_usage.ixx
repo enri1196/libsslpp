@@ -46,18 +46,22 @@ public:
 
   auto to_string() const -> string {
     string str;
-    if (value & XKU_SSL_SERVER) str += "SSL_SERVER, ";
-    if (value & XKU_SSL_CLIENT) str += "SSL_CLIENT, ";
-    if (value & XKU_SMIME) str += "SMIME, ";
-    if (value & XKU_CODE_SIGN) str += "CODE_SIGN, ";
-    if (value & XKU_OCSP_SIGN) str += "OCSP_SIGN, ";
-    if (value & XKU_TIMESTAMP) str += "TIMESTAMP, ";
-    if (value & XKU_DVCS) str += "DVCS, ";
-    if (value & XKU_ANYEKU) str += "ANYEKU, ";
-    if (value == UINT32_MAX) str += "ABSENT, ";
 
-    // Remove the trailing comma and space
-    if (!str.empty()) str.resize(str.size() - 2);
+    if (value == UINT32_MAX) {
+      str += "ABSENT";
+    } else {
+      if (value & XKU_SSL_SERVER) str += "serverAuth,";
+      if (value & XKU_SSL_CLIENT) str += "clientAuth,";
+      if (value & XKU_SMIME) str += "emailProtection,";
+      if (value & XKU_CODE_SIGN) str += "codeSigning,";
+      if (value & XKU_OCSP_SIGN) str += "OCSPSigning,";
+      if (value & XKU_TIMESTAMP) str += "timeStamping,";
+      if (value & XKU_DVCS) str += "DVCS,";
+      if (value & XKU_ANYEKU) str += "ANYEKU,";
+      if (!str.empty()) {
+        str.resize(str.size() - 1);
+      }
+    }
 
     return str;
   }
