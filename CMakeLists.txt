@@ -24,6 +24,7 @@ target_sources(sslpp
   PUBLIC
     FILE_SET CXX_MODULES FILES
     src/asn1/asn1_mod.ixx
+    src/asn1/cms_content_info.ixx
     src/asn1/asn1_integer.ixx
     src/asn1/asn1_time.ixx
     src/asn1/asn1_octet_string.ixx
@@ -41,6 +42,7 @@ target_sources(sslpp
     src/bio.ixx
     src/bignum.ixx
     src/base64.ixx
+    src/cms.ixx
     src/evp_pkey.ixx
     src/ocsp/ocsp_response.ixx
     src/ocsp/ocsp_mod.ixx
