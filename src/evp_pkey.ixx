@@ -4,6 +4,7 @@ module;
 #include <cstring>
 #include <memory>
 #include <span>
+#include <stdexcept>
 #include <vector>
 
 #include <openssl/evp.h>
@@ -60,7 +61,7 @@ public:
   static auto from(bio::SSLBio &&bio) -> EvpPKey {
     auto key = d2i_PUBKEY_bio(bio.as_ptr(), nullptr);
     if (key == nullptr) {
-      throw runtime_error("EvpPKey conversion from BIO Error");
+      throw runtime_error("EvpPKey Public conversion from BIO Error");
     }
     return EvpPKey(key);
   }
@@ -118,7 +119,7 @@ public:
   static auto from(bio::SSLBio &&bio) -> EvpPKey {
     auto key = d2i_PrivateKey_bio(bio.as_ptr(), nullptr);
     if (key == nullptr) {
-      throw runtime_error("EvpPKey conversion from BIO Error");
+      throw runtime_error("EvpPKey Private conversion from BIO Error");
     }
     return EvpPKey(key);
   }
@@ -127,7 +128,7 @@ public:
     const unsigned char *data = bytes.data();
     auto key = d2i_AutoPrivateKey(nullptr, &data, (long)bytes.size());
     if (key == nullptr) {
-      throw runtime_error("EvpPKey conversion from bytes Error");
+      throw runtime_error("EvpPKey Private conversion from bytes Error");
     }
     return EvpPKey(key);
   }
@@ -142,16 +143,60 @@ public:
   }
 
   auto get_public() const -> EvpPKey<Public> {
-    auto bio = bio::SSLBio::memory();
-    auto evp_ptr = this->as_ptr();
-    PEM_write_bio_PUBKEY(bio.as_ptr(), evp_ptr);
-    auto pub_key =
-        PEM_read_bio_PUBKEY(bio.as_ptr(), &evp_ptr, nullptr, nullptr);
-    return EvpPKey<Public>::ref(pub_key);
+    int key_type = EVP_PKEY_id(this->as_ptr());
+    EVP_PKEY* public_key = EVP_PKEY_new();
+    switch (key_type) {
+      // --- RSA_KEY ---
+      case EVP_PKEY_RSA: {
+        RSA* rsa_key = EVP_PKEY_get1_RSA(this->as_ptr());
+        if (rsa_key == nullptr) {
+          throw runtime_error("Pkey write error");
+        }
+        if (!EVP_PKEY_set1_RSA(public_key, rsa_key)) {
+          RSA_free(rsa_key);
+          EVP_PKEY_free(public_key);
+          throw runtime_error("Pkey write error");
+        }
+        RSA_free(rsa_key);
+        break;
+      }
+      // --- EC_KEY ---
+      case EVP_PKEY_EC: {
+        EC_KEY* ec_key = EVP_PKEY_get1_EC_KEY(this->as_ptr());
+        if (ec_key == nullptr) {
+          throw runtime_error("Pkey write error");
+        }
+        if (!EVP_PKEY_set1_EC_KEY(public_key, ec_key)) {
+          EC_KEY_free(ec_key);
+          EVP_PKEY_free(public_key);
+          throw runtime_error("Pkey write error");
+        }
+        EC_KEY_free(ec_key);
+        break;
+      }
+      // --- X25519 --- segfault :(
+      case EVP_PKEY_X25519: {
+        size_t keylen = 0;
+        if (EVP_PKEY_get_raw_public_key(this->as_ptr(), nullptr, &keylen) != 1) {
+          EVP_PKEY_free(public_key);
+          throw runtime_error("Pkey write error");
+        }
+        vector<uint8_t> raw_key(keylen);
+        if (EVP_PKEY_get_raw_public_key(this->as_ptr(), raw_key.data(), &keylen) != 1) {
+          EVP_PKEY_free(public_key);
+          throw runtime_error("Pkey write error");
+        }
+        public_key = EVP_PKEY_new_raw_public_key(EVP_PKEY_X25519, nullptr, raw_key.data(), keylen);
+        if (public_key == nullptr) {
+          throw runtime_error("Pkey write error");
+        }
+        break;
+      }
+    }
+    return EvpPKey<Public>::own(public_key);
   }
 
-  auto sign(span<uint8_t> &&data) const
-      -> vector<uint8_t> {
+  auto sign(span<uint8_t> &&data) const -> vector<uint8_t> {
     auto ctx = EVP_PKEY_CTX_new(this->as_ptr(), nullptr);
     EVP_PKEY_sign_init(ctx);
     size_t sig_len = 0;
