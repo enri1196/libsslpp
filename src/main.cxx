@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <print>
 #include <utility>
+#include <vector>
 
 import asn1;
 import bio;
@@ -28,7 +29,7 @@ auto main() -> int {
   println("extended_key_usage: {}", cert.extended_key_usage().to_string());
 
   println("");
-  println("--- --- ---");
+  println("--- --- --- --- ---");
   println("");
 
   int64_t serial = 1;
@@ -41,7 +42,9 @@ auto main() -> int {
     .add_entry(NameEntry::OU, "Home")
     .add_entry(NameEntry::CN, "HomeCA")
     .build();
-  auto pkey = EvpPKey<Private>::from(EcCurves::X25519);
+  auto vec_ku = vector<EKeyUsage>{EKeyUsage::DIGITAL_SIGNATURE, EKeyUsage::NON_REPUDIATION};
+  auto ku = KeyUsage::from(std::move(vec_ku)).to_x509_ext();
+  auto pkey = EvpPKey<Private>::from(EcCurves::SECP_256K1);
   auto cert2 = X509CertBuilder::init()
     .set_version(X509Version::V3)
     .set_serial(Asn1Integer::from(serial))
@@ -49,6 +52,8 @@ auto main() -> int {
     .set_not_after(Asn1Time::now())
     .set_subject(std::move(subject))
     .set_issuer(std::move(issuer))
+    .set_pub_key(pkey.get_public())
+    .add_ext(std::move(ku))
     .build(std::move(pkey));
   println("--- CUSTOM CERT INFO ---");
   println("serial: {}", cert2.serial().to_string());
@@ -56,9 +61,9 @@ auto main() -> int {
   println("issuer: {}", cert2.issuer().to_string());
   println("not_before: {}", cert2.not_before().to_string());
   println("not_after: {}", cert2.not_after().to_string());
-  // println("pub_key: {}", cert2.pub_key().to_string());
-  // println("extensions: {}", cert2.ext_count());
-  // println("key_usage: {}", cert2.key_usage().to_string());
-  // println("extended_key_usage: {}", cert2.extended_key_usage().to_string());
+  println("pub_key: {}", cert2.pub_key().to_string());
+  println("extensions: {}", cert2.ext_count());
+  println("key_usage: {}", cert2.key_usage().to_string());
+  println("extended_key_usage: {}", cert2.extended_key_usage().to_string());
   return 0;
 }
