@@ -44,7 +44,7 @@ auto main() -> int {
     .build();
   auto vec_ku = vector<EKeyUsage>{EKeyUsage::DIGITAL_SIGNATURE, EKeyUsage::NON_REPUDIATION};
   auto ku = KeyUsage::from(std::move(vec_ku)).to_x509_ext();
-  auto pkey = EvpPKey<Private>::from(EcCurves::SECP_256K1);
+  auto pkey = EvpPKey<Private>::from(EcCurves::X25519);
   auto cert2 = X509CertBuilder::init()
     .set_version(X509Version::V3)
     .set_serial(Asn1Integer::from(serial))

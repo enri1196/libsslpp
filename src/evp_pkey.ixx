@@ -98,7 +98,12 @@ public:
 
   static auto from(EcCurves nid) -> EvpPKey {
     auto m_key = EVP_PKEY_new();
-    auto evp_ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, nullptr);
+    EVP_PKEY_CTX *evp_ctx = nullptr;
+    if (nid == EcCurves::X25519) {
+      evp_ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_X25519, nullptr);
+    } else {
+      evp_ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, nullptr);
+    }
     EVP_PKEY_keygen_init(evp_ctx);
     EVP_PKEY_CTX_set_ec_paramgen_curve_nid(evp_ctx, (int)nid);
     EVP_PKEY_keygen(evp_ctx, &m_key);
@@ -174,7 +179,7 @@ public:
         EC_KEY_free(ec_key);
         break;
       }
-      // --- X25519 --- segfault :(
+      // --- X25519 ---
       case EVP_PKEY_X25519: {
         size_t keylen = 0;
         if (EVP_PKEY_get_raw_public_key(this->as_ptr(), nullptr, &keylen) != 1) {
