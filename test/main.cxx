@@ -34,8 +34,8 @@ auto main() -> int {
 
   int64_t serial = 1;
   auto subject = X509NameBuilder::init()
-    .add_entry(NameEntry::GivenName, "Enrico")
-    .add_entry(NameEntry::Surname, "Rizzo")
+    .add_entry(NameEntry::GivenName, "MyName")
+    .add_entry(NameEntry::Surname, "MySurname")
     .add_entry(NameEntry::C, "IT")
     .build();
   auto issuer = X509NameBuilder::init()
