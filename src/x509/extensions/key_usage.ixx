@@ -31,6 +31,9 @@ export enum class EKeyUsage : uint32_t {
 };
 
 export class KeyUsage {
+private:
+  uint32_t value;
+
 public:
   static auto from(uint32_t value) -> KeyUsage {
     auto ku = KeyUsage();
@@ -97,9 +100,6 @@ public:
     }
     return X509Extension::own(ext);
   }
-
-private:
-  uint32_t value;
 };
 
 }
