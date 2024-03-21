@@ -16,20 +16,23 @@ import :x509_ext;
 
 namespace openssl::x509 {
 
-export class ExtendedKeyUsage {
-public:
-  enum class EExtendedKeyUsage : uint32_t {
-    SSL_SERVER  = XKU_SSL_SERVER,
-    SSL_CLIENT  = XKU_SSL_CLIENT,
-    SMIME       = XKU_SMIME,
-    CODE_SIGN   = XKU_CODE_SIGN,
-    OCSP_SIGN   = XKU_OCSP_SIGN,
-    TIMESTAMP   = XKU_TIMESTAMP,
-    DVCS        = XKU_DVCS,
-    ANYEKU      = XKU_ANYEKU,
-    ABSENT      = UINT32_MAX
-  };
+export enum class EExtendedKeyUsage : uint32_t {
+  SSL_SERVER  = XKU_SSL_SERVER,
+  SSL_CLIENT  = XKU_SSL_CLIENT,
+  SMIME       = XKU_SMIME,
+  CODE_SIGN   = XKU_CODE_SIGN,
+  OCSP_SIGN   = XKU_OCSP_SIGN,
+  TIMESTAMP   = XKU_TIMESTAMP,
+  DVCS        = XKU_DVCS,
+  ANYEKU      = XKU_ANYEKU,
+  ABSENT      = UINT32_MAX
+};
 
+export class ExtendedKeyUsage {
+private:
+  uint32_t value;
+
+public:
   static auto from(uint32_t value) -> ExtendedKeyUsage {
     auto eku = ExtendedKeyUsage();
     eku.value = value;
@@ -93,9 +96,6 @@ public:
     }
     return X509Extension::own(ext);
   }
-
-private:
-  uint32_t value;
 };
 
 }
