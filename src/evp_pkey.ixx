@@ -30,7 +30,7 @@ export enum class EcCurves : int32_t {
   ED448 = NID_Ed448,
 };
 
-export enum class Rsa {
+export enum class Rsa : int32_t {
   R1024_BITS = 1024,
   R2048_BITS = 2048,
   R4096_BITS = 4096,
