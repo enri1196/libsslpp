@@ -12,8 +12,8 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wconversion -Wimplicit-fallthrough")
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wconversion -Wimplicit-fallthrough -Wpedantic")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 find_package(OpenSSL REQUIRED)
@@ -50,6 +50,6 @@ target_sources(sslpp
 )
 
 # Create an executable
-add_executable(test_bin src/main.cxx)
+add_executable(test_bin test/main.cxx)
 # Link to the library foo
 target_link_libraries(test_bin PRIVATE sslpp OpenSSL::SSL OpenSSL::Crypto)
