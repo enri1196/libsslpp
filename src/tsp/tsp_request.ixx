@@ -1,7 +1,9 @@
 module;
 
 #include <memory>
+#include <vector>
 #include <span>
+#include <string>
 
 #include <openssl/safestack.h>
 #include <openssl/ts.h>
@@ -11,13 +13,12 @@ using namespace std;
 export module tsp:tsp_req;
 
 import asn1;
+import bio;
 
 namespace openssl::ts {
 
 static void treq_own_free(TS_REQ *x) { TS_REQ_free(x); }
 static void treq_ref_free(TS_REQ *) {}
-
-export class TSRequestBuilder;
 
 export class TSRequest {
 private:
@@ -35,17 +36,19 @@ public:
 
   auto as_ptr() const noexcept -> TS_REQ* { return m_ssl_type.get(); }
 
-  template <class Builder = TSRequestBuilder>
-  requires is_same_v<Builder, TSRequestBuilder>
-  static auto init() -> Builder {
-    return Builder();
-  }
-
-  static auto from(span<uint8_t>&& bytes) -> TSRequest {
+  static auto from(span<uint8_t> &&bytes) -> TSRequest {
     const unsigned char *bytes_data = bytes.data();
     auto req = d2i_TS_REQ(nullptr, &bytes_data, static_cast<long>(bytes.size()));
     if (req == nullptr) {
       throw std::runtime_error("TSRequest conversion from bytes Error");
+    }
+    return TSRequest(req);
+  }
+
+  static auto from(bio::SSLBio &&bio) -> TSRequest {
+    auto req = d2i_TS_REQ_bio(bio.as_ptr(), nullptr);
+    if (req == nullptr) {
+      throw std::runtime_error("TSRequest conversion from bio Error");
     }
     return TSRequest(req);
   }
@@ -68,6 +71,16 @@ public:
   auto policy_id() const -> ASN1_OBJECT* {
     auto id = TS_REQ_get_policy_id(this->as_ptr());
     return id;
+  }
+
+  auto to_string() const -> string {
+    auto bio = bio::SSLBio::memory();
+    TS_REQ_print_bio(bio.as_ptr(), this->as_ptr());
+    return bio.get_mem_ptr();
+  }
+
+  auto to_bytes() const -> vector<uint8_t> {
+    return {};
   }
 };
 
@@ -100,6 +113,10 @@ public:
   auto set_cert_request(bool cert_request) -> TSRequestBuilder {
     TS_REQ_set_cert_req(req, cert_request);
     return std::forward<TSRequestBuilder>(*this);
+  }
+  
+  auto build() -> TSRequest {
+    return TSRequest::own(req);
   }
 };
 
