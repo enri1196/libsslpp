@@ -20,14 +20,14 @@ import bio;
 namespace openssl::key {
 
 export enum class EcCurves : int32_t {
-  SECP_112R1 = NID_secp112r1,
-  SECP_112R2 = NID_secp112r2,
-  SECP_128R1 = NID_secp128r1,
-  SECP_128R2 = NID_secp128r2,
-  SECP_256K1 = NID_secp256k1,
-  SECP_521R1 = NID_secp521r1,
-  X25519 = NID_X25519,
-  ED448 = NID_Ed448,
+  SECP_112R1  = NID_secp112r1,
+  SECP_112R2  = NID_secp112r2,
+  SECP_128R1  = NID_secp128r1,
+  SECP_128R2  = NID_secp128r2,
+  SECP_256K1  = NID_secp256k1,
+  SECP_521R1  = NID_secp521r1,
+  X25519      = NID_X25519,
+  ED448       = NID_Ed448,
 };
 
 export enum class Rsa : int32_t {
