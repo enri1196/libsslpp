@@ -44,6 +44,7 @@ target_sources(sslpp
     src/base64.ixx
     src/cms.ixx
     src/evp_pkey.ixx
+    src/error.ixx
     src/ocsp/ocsp_response.ixx
     src/ocsp/ocsp_mod.ixx
     src/ocsp/ocsp_request.ixx
