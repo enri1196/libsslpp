@@ -1,6 +1,8 @@
 FROM fedora:41
 
-RUN dnf install -y clang clang-tools-extra meson wget llvm git unzip cmake zsh
+RUN dnf update -y
+
+RUN dnf install -y clang clang-tools-extra meson wget llvm git unzip cmake zsh cppcheck
 
 RUN chsh -s /usr/bin/zsh
 

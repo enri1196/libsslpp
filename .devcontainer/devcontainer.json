@@ -24,7 +24,8 @@
 				"josetr.cmake-language-support-vscode",
 				"ms-vscode.cmake-tools",
 				"eamodio.gitlens",
-				"vadimcn.vscode-lldb"
+				"vadimcn.vscode-lldb",
+				"NathanJ.cppcheck-plugin"
 			]
 		}
 	}
