@@ -13,6 +13,7 @@ using namespace std;
 
 export module x509:ku_ext;
 
+import :base_ext;
 import :x509_ext;
 
 namespace openssl::x509 {
@@ -30,7 +31,7 @@ export enum class EKeyUsage : uint32_t {
   ABSENT              = UINT32_MAX
 };
 
-export class KeyUsage {
+export class KeyUsage : public BaseExt {
 private:
   uint32_t value;
 
@@ -87,7 +88,7 @@ public:
     return vec;
   }
 
-  auto to_x509_ext() -> X509Extension {
+  auto to_x509_ext() const -> X509Extension override {
     X509V3_CTX ctx;
     int nid = static_cast<int>(X509V3ExtensionNid::KEY_USAGE);
     X509V3_set_ctx(&ctx, nullptr, nullptr, nullptr, nullptr, 0);

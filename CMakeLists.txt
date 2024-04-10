@@ -32,6 +32,7 @@ target_sources(sslpp
     src/tsp/tsp_response.ixx
     src/tsp/tsp_request.ixx
     src/x509/x509_store.ixx
+    src/x509/extensions/base_extension.ixx
     src/x509/extensions/extended_key_usage.ixx
     src/x509/extensions/key_usage.ixx
     src/x509/x509_name.ixx
