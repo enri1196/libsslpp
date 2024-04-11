@@ -99,13 +99,18 @@ public:
   static auto from(EcCurves nid) -> EvpPKey {
     auto m_key = EVP_PKEY_new();
     EVP_PKEY_CTX *evp_ctx = nullptr;
-    if (nid == EcCurves::X25519) {
+    switch (nid) {
+    case EcCurves::X25519:
       evp_ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_X25519, nullptr);
-    } else {
+      break;
+    // case EcCurves::ED448:  // error x448 doesn't exist
+    //   evp_ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_X448, nullptr);
+    //   break;
+    default:
       evp_ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, nullptr);
     }
     EVP_PKEY_keygen_init(evp_ctx);
-    EVP_PKEY_CTX_set_ec_paramgen_curve_nid(evp_ctx, (int)nid);
+    EVP_PKEY_CTX_set_ec_paramgen_curve_nid(evp_ctx, (int32_t)nid);
     EVP_PKEY_keygen(evp_ctx, &m_key);
     EVP_PKEY_CTX_free(evp_ctx);
     return EvpPKey(m_key);
@@ -115,7 +120,7 @@ public:
     auto m_key = EVP_PKEY_new();
     auto evp_ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, nullptr);
     EVP_PKEY_keygen_init(evp_ctx);
-    EVP_PKEY_CTX_set_rsa_keygen_bits(evp_ctx, (int)size);
+    EVP_PKEY_CTX_set_rsa_keygen_bits(evp_ctx, (int32_t)size);
     EVP_PKEY_keygen(evp_ctx, &m_key);
     EVP_PKEY_CTX_free(evp_ctx);
     return EvpPKey(m_key);
@@ -131,7 +136,7 @@ public:
 
   static auto from(span<uint8_t> &&bytes) -> EvpPKey {
     const unsigned char *data = bytes.data();
-    auto key = d2i_AutoPrivateKey(nullptr, &data, (long)bytes.size());
+    auto key = d2i_AutoPrivateKey(nullptr, &data, (int64_t)bytes.size());
     if (key == nullptr) {
       throw runtime_error("EvpPKey Private conversion from bytes Error");
     }
