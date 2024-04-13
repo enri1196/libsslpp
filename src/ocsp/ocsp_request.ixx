@@ -34,12 +34,6 @@ public:
     return OCSPRequest(ref, false);
   }
 
-  template <class Builder>
-    requires is_same_v<Builder, OCSPRequestBuilder>
-  static auto builder() -> Builder {
-    return Builder();
-  }
-
   static auto from(span<uint8_t> &&bytes) -> OCSPRequest {
     const unsigned char *bytes_data = bytes.data();
     auto req =
