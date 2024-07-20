@@ -11,11 +11,11 @@ module;
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
 
-using namespace std;
-
 export module evp;
 
 import bio;
+
+using namespace std;
 
 namespace openssl::key {
 
@@ -217,4 +217,4 @@ public:
   }
 };
 
-} // namespace openssl::key
+}  // namespace openssl::key

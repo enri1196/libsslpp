@@ -11,4 +11,4 @@ public:
   virtual auto to_x509_ext() const -> X509Extension = 0;
 };
 
-}
+}  // namespace openssl::x509

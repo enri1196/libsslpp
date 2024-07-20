@@ -9,11 +9,11 @@ module;
 #include <openssl/bn.h>
 #include <openssl/asn1.h>
 
+export module asn1:integer;
+import bn;
+
 using namespace std;
 
-export module asn1:integer;
-
-import bn;
 
 namespace openssl::asn1 {
 

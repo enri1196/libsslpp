@@ -6,9 +6,9 @@ module;
 
 #include <openssl/err.h>
 
-using namespace std;
-
 export module error;
+
+using namespace std;
 
 namespace openssl::error {
 
@@ -43,4 +43,4 @@ public:
   auto message() const -> string_view { return m_message; }
 };
 
-} // namespace openssl::error
+}  // namespace openssl::error

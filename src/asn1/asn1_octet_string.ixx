@@ -7,9 +7,9 @@ module;
 
 #include <openssl/asn1.h>
 
-using namespace std;
-
 export module asn1:octet_string;
+
+using namespace std;
 
 namespace openssl::asn1 {
 
@@ -47,4 +47,4 @@ public:
   auto as_ptr() const noexcept -> ASN1_OCTET_STRING* { return m_ssl_type.get(); }
 };
 
-}
+}  // namespace openssl::asn1

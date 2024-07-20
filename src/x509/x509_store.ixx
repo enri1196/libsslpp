@@ -42,4 +42,4 @@ public:
   }
 };
 
-} // namespace openssl::x509
+}  // namespace openssl::x509

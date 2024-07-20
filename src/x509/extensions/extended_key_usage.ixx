@@ -56,12 +56,12 @@ public:
     } else {
       if (value & XKU_SSL_SERVER) str += "serverAuth,";
       if (value & XKU_SSL_CLIENT) str += "clientAuth,";
-      if (value & XKU_SMIME) str += "emailProtection,";
-      if (value & XKU_CODE_SIGN) str += "codeSigning,";
-      if (value & XKU_OCSP_SIGN) str += "OCSPSigning,";
-      if (value & XKU_TIMESTAMP) str += "timeStamping,";
-      if (value & XKU_DVCS) str += "DVCS,";
-      if (value & XKU_ANYEKU) str += "ANYEKU,";
+      if (value & XKU_SMIME)      str += "emailProtection,";
+      if (value & XKU_CODE_SIGN)  str += "codeSigning,";
+      if (value & XKU_OCSP_SIGN)  str += "OCSPSigning,";
+      if (value & XKU_TIMESTAMP)  str += "timeStamping,";
+      if (value & XKU_DVCS)       str += "DVCS,";
+      if (value & XKU_ANYEKU)     str += "ANYEKU,";
       if (!str.empty()) {
         str.resize(str.size() - 1);
       }
@@ -72,15 +72,15 @@ public:
 
   auto to_vec() const -> vector<EExtendedKeyUsage> {
     vector<EExtendedKeyUsage> vec;
-    if (value & XKU_SSL_SERVER)   vec.push_back(EExtendedKeyUsage::SSL_SERVER);
-    if (value & XKU_SSL_CLIENT)   vec.push_back(EExtendedKeyUsage::SSL_CLIENT);
-    if (value & XKU_SMIME)        vec.push_back(EExtendedKeyUsage::SMIME);
-    if (value & XKU_CODE_SIGN)    vec.push_back(EExtendedKeyUsage::CODE_SIGN);
-    if (value & XKU_OCSP_SIGN)    vec.push_back(EExtendedKeyUsage::OCSP_SIGN);
-    if (value & XKU_TIMESTAMP)    vec.push_back(EExtendedKeyUsage::TIMESTAMP);
-    if (value & XKU_DVCS)         vec.push_back(EExtendedKeyUsage::DVCS);
-    if (value & XKU_ANYEKU)       vec.push_back(EExtendedKeyUsage::ANYEKU);
-    if (value == UINT32_MAX)      vec.push_back(EExtendedKeyUsage::ABSENT);
+    if (value & XKU_SSL_SERVER) vec.push_back(EExtendedKeyUsage::SSL_SERVER);
+    if (value & XKU_SSL_CLIENT) vec.push_back(EExtendedKeyUsage::SSL_CLIENT);
+    if (value & XKU_SMIME)      vec.push_back(EExtendedKeyUsage::SMIME);
+    if (value & XKU_CODE_SIGN)  vec.push_back(EExtendedKeyUsage::CODE_SIGN);
+    if (value & XKU_OCSP_SIGN)  vec.push_back(EExtendedKeyUsage::OCSP_SIGN);
+    if (value & XKU_TIMESTAMP)  vec.push_back(EExtendedKeyUsage::TIMESTAMP);
+    if (value & XKU_DVCS)       vec.push_back(EExtendedKeyUsage::DVCS);
+    if (value & XKU_ANYEKU)     vec.push_back(EExtendedKeyUsage::ANYEKU);
+    if (value == UINT32_MAX)    vec.push_back(EExtendedKeyUsage::ABSENT);
     return vec;
   }
 
@@ -99,4 +99,4 @@ public:
   }
 };
 
-}
+}  // namespace openssl::x509

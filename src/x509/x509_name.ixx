@@ -8,11 +8,11 @@ module;
 
 #include <openssl/x509.h>
 
+export module x509:x509_name;
+import bio;
+
 using namespace std;
 
-export module x509:x509_name;
-
-import bio;
 
 namespace openssl::x509 {
 
@@ -137,4 +137,4 @@ public:
   }
 };
 
-} // namespace openssl::x509
+}  // namespace openssl::x509

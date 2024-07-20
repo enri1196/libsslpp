@@ -9,11 +9,11 @@ module;
 #include <openssl/x509v3.h>
 #include <openssl/x509.h>
 
+export module x509:x509_ext;
+import asn1;
+
 using namespace std;
 
-export module x509:x509_ext;
-
-import asn1;
 
 namespace openssl::x509 {
 

@@ -7,9 +7,9 @@ module;
 
 #include <openssl/ocsp.h>
 
-using namespace std;
-
 export module ocsp:ocsp_resp;
+
+using namespace std;
 
 namespace openssl::ocsp {
 
@@ -45,4 +45,4 @@ public:
   auto as_ptr() const noexcept -> OCSP_RESPONSE * { return m_ssl_type.get(); }
 };
 
-} // namespace openssl::ocsp
+}  // namespace openssl::ocsp

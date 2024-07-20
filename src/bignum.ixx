@@ -7,9 +7,9 @@ module;
 #include <openssl/bn.h>
 #include <openssl/asn1.h>
 
-using namespace std;
-
 export module bn;
+
+using namespace std;
 
 // import asn1;
 
@@ -65,4 +65,4 @@ public:
   auto to_string() const -> string { return BN_bn2dec(this->as_ptr()); }
 };
 
-} // namespace openssl::bn
+}  // namespace openssl::bn

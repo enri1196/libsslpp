@@ -9,11 +9,11 @@ module;
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
 
+export module asn1:time;
+import bio;
+
 using namespace std;
 
-export module asn1:time;
-
-import bio;
 
 namespace openssl::asn1 {
 
@@ -70,4 +70,4 @@ public:
   }
 }; // class Asn1Time
 
-} // namespace openssl::asn1
+}  // namespace openssl::asn1

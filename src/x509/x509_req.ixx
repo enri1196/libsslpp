@@ -6,9 +6,9 @@ module;
 
 #include <openssl/x509.h>
 
-using namespace std;
-
 export module x509:x509_req;
+
+using namespace std;
 
 namespace openssl::x509 {
 
@@ -39,4 +39,4 @@ public:
   }
 };
 
-} // namespace openssl
+}  // namespace openssl::x509

@@ -5,11 +5,11 @@ module;
 
 #include <openssl/cms.h>
 
+export module asn1:cms_ci;
+import bio;
+
 using namespace std;
 
-export module asn1:cms_ci;
-
-import bio;
 
 namespace openssl::asn1 {
 
@@ -41,4 +41,4 @@ public:
   }
 };
 
-}
+}  // namespace openssl::asn1

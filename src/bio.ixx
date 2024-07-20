@@ -10,9 +10,9 @@ module;
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
 
-using namespace std;
-
 export module bio;
+
+using namespace std;
 
 namespace openssl::bio {
 
@@ -71,4 +71,4 @@ public:
 
 }; // class SSLBio
 
-} // namespace openssl::bio
+}  // namespace openssl::bio

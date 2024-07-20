@@ -87,4 +87,4 @@ public:
   }
 };
 
-} // namespace openssl::ocsp
+}  // namespace openssl::ocsp

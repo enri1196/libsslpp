@@ -140,42 +140,42 @@ public:
 
   auto set_version(X509Version version) -> X509CertBuilder {
     X509_set_version(cert, static_cast<long>(version));
-    return std::forward<X509CertBuilder>(*this);
+    return *this;
   }
 
   auto set_serial(asn1::Asn1Integer &&cert_id) -> X509CertBuilder {
     X509_set_serialNumber(cert, cert_id.as_ptr());
-    return std::forward<X509CertBuilder>(*this);
+    return *this;
   }
 
   auto set_not_before(asn1::Asn1Time &&time) -> X509CertBuilder {
     X509_set1_notBefore(cert, time.as_ptr());
-    return std::forward<X509CertBuilder>(*this);
+    return *this;
   }
 
   auto set_not_after(asn1::Asn1Time &&time) -> X509CertBuilder {
     X509_set1_notAfter(cert, time.as_ptr());
-    return std::forward<X509CertBuilder>(*this);
+    return *this;
   }
 
   auto set_subject(X509Name &&name) -> X509CertBuilder {
     X509_set_subject_name(cert, name.as_ptr());
-    return std::forward<X509CertBuilder>(*this);
+    return *this;
   }
 
   auto set_issuer(X509Name &&name) -> X509CertBuilder {
     X509_set_issuer_name(cert, name.as_ptr());
-    return std::forward<X509CertBuilder>(*this);
+    return *this;
   }
 
   auto set_pub_key(key::EvpPKey<key::Public> &&key) -> X509CertBuilder {
     X509_set_pubkey(cert, key.as_ptr());
-    return std::forward<X509CertBuilder>(*this);
+    return *this;
   }
 
   auto add_ext(X509Extension &&ext) -> X509CertBuilder {
     X509_add_ext(cert, ext.as_ptr(), -1);
-    return std::forward<X509CertBuilder>(*this);
+    return *this;
   }
 
   auto build(key::EvpPKey<key::Private> &&pkey) -> X509Certificate {
@@ -210,4 +210,4 @@ public:
   // }
 };
 
-} // namespace openssl::x509
+}  // namespace openssl::x509
